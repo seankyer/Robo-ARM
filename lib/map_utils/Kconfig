@@ -1,0 +1,6 @@
+# SPDX-License-Identifier: Apache-2.0
+
+config MAP_UTILS
+	bool "Map utilities"
+	help
+	  This option enables the map utils library
