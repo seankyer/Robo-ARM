@@ -13,8 +13,6 @@ int main(void)
 {
         int ret;
 
-        printk("Hello World!\n");
-
         ret = generate_configuration_space();
         if (ret) {
                 LOG_ERR("Couldn't generate configuration space\n");

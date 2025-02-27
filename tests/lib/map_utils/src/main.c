@@ -4,6 +4,10 @@
 
 #include <zephyr/ztest.h>
 #include <lib/map_utils.h>
+#include <errno.h>
+#include <math.h>
+
+#define EPSILON 1e-6
 
 static void set_segment(struct segment *seg, int16_t x1, int16_t y1, int16_t x2, int16_t y2)
 {
@@ -11,6 +15,86 @@ static void set_segment(struct segment *seg, int16_t x1, int16_t y1, int16_t x2,
         seg->y1 = (double)y1;
         seg->x2 = (double)x2;
         seg->y2 = (double)y2;
+}
+
+static bool float_equal(double a, double b)
+{
+        return fabs(a - b) < EPSILON;
+}
+
+ZTEST(map_utils, test_segment_end_trig)
+{
+        double x;
+        double y;
+        int ret;
+
+        ret = get_segment_endpoint_trig(5, 0, NULL, &y);
+        zassert_equal(ret, -EINVAL);
+
+        ret = get_segment_endpoint_trig(5, 0, &x, NULL);
+        zassert_equal(ret, -EINVAL);
+
+        ret = get_segment_endpoint_trig(5, 0, &x, &y);
+        zassert_equal(ret, 0);
+        zassert_equal(float_equal(x, 5), true);
+        zassert_equal(float_equal(y, 0), true);
+
+        ret = get_segment_endpoint_trig(5, 90, &x, &y);
+        zassert_equal(ret, 0);
+        zassert_equal(float_equal(x, 0), true);
+        zassert_equal(float_equal(y, 5), true);
+
+        ret = get_segment_endpoint_trig(5, 180, &x, &y);
+        zassert_equal(ret, 0);
+        zassert_equal(float_equal(x, -5), true);
+        zassert_equal(float_equal(y, 0), true);
+
+        ret = get_segment_endpoint_trig(5, 270, &x, &y);
+        zassert_equal(ret, 0);
+        zassert_equal(float_equal(x, 0), true);
+        zassert_equal(float_equal(y, -5), true);
+
+        ret = get_segment_endpoint_trig(5, 360, &x, &y);
+        zassert_equal(ret, 0);
+        printf("x: %f, y: %f\n", x, y);
+        zassert_equal(float_equal(x, 5), true);
+        zassert_equal(float_equal(y, 0), true);
+
+        ret = get_segment_endpoint_trig(10, 45, &x, &y);
+        zassert_equal(ret, 0);
+        zassert_equal(float_equal(x, 10 * cos(M_PI / 4)), true);
+        zassert_equal(float_equal(y, 10 * sin(M_PI / 4)), true);
+
+        ret = get_segment_endpoint_trig(-5, 30, &x, &y);
+        zassert_equal(ret, 0);
+        zassert_equal(float_equal(x, -5 * cos(M_PI / 6)), true);
+        zassert_equal(float_equal(y, -5 * sin(M_PI / 6)), true);
+
+        ret = get_segment_endpoint_trig(7.5, 200, &x, &y);
+        zassert_equal(ret, 0);
+        zassert_equal(float_equal(x, 7.5 * cos(10 * M_PI / 9)), true);
+        zassert_equal(float_equal(y, 7.5 * sin(10 * M_PI / 9)), true);
+
+        ret = get_segment_endpoint_trig(7, 175.5, &x, &y);
+        zassert_equal(ret, 0);
+        zassert_equal(float_equal(x, 7 * cos(175.5 * M_PI / 180)), true);
+        zassert_equal(float_equal(y, 7 * sin(175.5 * M_PI / 180)), true);
+
+
+        ret = get_segment_endpoint_trig(5, -180, &x, &y);
+        zassert_equal(ret, 0);
+        zassert_equal(float_equal(x, -5), true);
+        zassert_equal(float_equal(y, 0), true);
+
+        ret = get_segment_endpoint_trig(5, -0.5, &x, &y);
+        zassert_equal(ret, 0);
+        zassert_equal(float_equal(x, 5 * cos(359.5 * M_PI / 180)), true);
+        zassert_equal(float_equal(y, 5 * sin(359.5 * M_PI / 180)), true);
+
+        ret = get_segment_endpoint_trig(5, -361, &x, &y);
+        zassert_equal(ret, 0);
+        zassert_equal(float_equal(x, 5 * cos(359 * M_PI / 180)), true);
+        zassert_equal(float_equal(y, 5 * sin(359 * M_PI / 180)), true);
 }
 
 ZTEST(map_utils, test_rectangle_intersect)

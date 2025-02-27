@@ -7,6 +7,12 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <errno.h>
+#include <zephyr/kernel.h>
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 /**
  * @brief Struct defining a line segment
@@ -27,6 +33,21 @@ struct rectangle {
         struct segment left; /** left segment of rectangle */
         struct segment right; /** right segment of rectangle */
 };
+
+/**
+ * @brief Determine the endpoint of a segment
+ *
+ * Given the length of the segment (hypotenuse) and it's angle from the base,
+ * calculate the ending x and y coordinate that it occupies
+ *
+ * @param[in] hypotenuse The length of the segment
+ * @param[in] angle_d The angle of the segment from the base in degrees
+ * @param[out] x Pointer to x which holds ending x coordinate
+ * @param[out] y Pointer to y which holds ending y coordinate
+ *
+ * @retval 0 on success, nonzero on error
+ */
+int get_segment_endpoint_trig(double hypotenuse, double angle_d, double *x, double *y);
 
 /**
  * @brief Determine if two segments intersect

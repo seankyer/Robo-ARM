@@ -1,7 +1,25 @@
-#include <stdlib.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <math.h>
 #include <lib/map_utils.h>
+
+int get_segment_endpoint_trig(double hypotenuse, double angle_d, double *x, double *y)
+{
+        if (x == NULL || y == NULL) {
+                return -EINVAL;
+        }
+
+        while (angle_d < 0) {
+                angle_d += 360;
+        }
+
+        double angle_radians = fmod(angle_d, 360) * M_PI / 180.0;
+
+        *y = hypotenuse * sin(angle_radians);
+        *x = hypotenuse * cos(angle_radians);
+
+        return 0;
+}
 
 bool check_segment_segment_intersect(struct segment s1, struct segment s2)
 {

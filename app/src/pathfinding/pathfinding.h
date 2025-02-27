@@ -5,8 +5,8 @@
 #ifndef APP_PATHFINDING_H_
 #define APP_PATHFINDING_H_
 
-#include <stdint.h>
 #include <stdbool.h>
+#include <stdint.h>
 
 #define MAX_NUM_OBJ 10
 
