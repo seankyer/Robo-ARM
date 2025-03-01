@@ -13,4 +13,7 @@ target_sources(app PRIVATE
         src/pathfinding/pathfinding.c
 )
 
-target_include_directories(app PRIVATE ${CMAKE_SOURCE_DIR}/src/pathfinding)
+target_include_directories(app PRIVATE
+        ${CMAKE_SOURCE_DIR}/src
+        ${CMAKE_SOURCE_DIR}/src/pathfinding
+)

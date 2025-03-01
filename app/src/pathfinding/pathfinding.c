@@ -3,36 +3,42 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 #include <pathfinding.h>
-#include <lib/map_utils.h>
 
 LOG_MODULE_REGISTER(pathfinding, LOG_LEVEL_INF);
 
-#define REQUIRED_CLEARANCE_MM 5 /* mm of clearance between arm edge and obstacles */
-
 /* Configuration space representation */
-#define ARM_LEN_MM 100 /* arm length in mm */
+#define ARM_LEN_MM 150 /* arm length in mm */
 #define ARM_WIDTH_MM 30 /* arm length in mm */
 #define ARM_RANGE 180 /* arm range of motion in degrees */
 #define ARM_DEGREE_INC 1 /* degrees increment */
 
 /* Real-world 'workspace' representation */
-#define WORKSPACE_STUDS 50
-#define STUD_DIAMETER_MM 750
+#define WORKSPACE_SQMM 395
 
 /**
- * @brief Arm origin
- *
- * What the Arm's origin point is
+ * @brief Required mm of clearance between arm edge and obstacles
  */
-#define ARM_ORIGIN_X WORKSPACE_STUDS / 2
-#define ARM_ORIGIN_Y WORKSPACE_STUDS / 4
+#define REQUIRED_CLEARANCE_MM 3
+
+/**
+ * @brief Arm X origin
+ */
+#define ARM_ORIGIN_X_MM WORKSPACE_SQMM / 2
+
+/**
+ * @brief Arm Y origin
+ */
+#define ARM_ORIGIN_Y_MM 30
 
 /**
  * @brief Workspace array
- *
- * 2D representation of each stud in our workspace
  */
-static uint8_t workspace[WORKSPACE_STUDS][WORKSPACE_STUDS] = { {0} };
+static uint8_t workspace[WORKSPACE_SQMM][WORKSPACE_SQMM] = { {0} };
+
+/**
+ * @brief Number of known obstacles
+ */
+static int num_obstacles;
 
 /**
  * @brief List of obstacles in workspace
@@ -86,25 +92,34 @@ static bool check_collisions(double orig_x, double orig_y, double end_x, double 
                 .y2 = end_y
         };
 
-        /*
-         * For each object
-         */
-        for (int i = 0; i < MAX_NUM_OBJ; i++) {
+        /* Iterate through each known object */
+        for (int i = 0; i < num_obstacles; i++) {
 
-                /*
-                 * Scan the thickness of our arm
-                 */
-                for (int i = -(ARM_WIDTH_MM / 2) - REQUIRED_CLEARANCE_MM; i <= (ARM_WIDTH_MM / 2) + REQUIRED_CLEARANCE_MM; i += (ARM_WIDTH_MM + (REQUIRED_CLEARANCE_MM * 2)) / 4) {
+                /* Translate by the the thickness of our plus clearance arm */
+                for (int mag = -(ARM_WIDTH_MM / 2) - REQUIRED_CLEARANCE_MM; mag <= (ARM_WIDTH_MM / 2) + REQUIRED_CLEARANCE_MM; mag += (ARM_WIDTH_MM + (REQUIRED_CLEARANCE_MM * 2)) / 4) {
 
-                        /* TODO: We need to translate the center coordinates of the arm along its parallel by the magnitude calculated by i (thickness of the arm + clearance requirement)*/
+                        /* Instantly return if a collision is found anywhere along arm width or clearance */
+                        if (check_segment_rectangle_collisions(translate_segment(seg, mag), obstacles[i])) {
+                                return true;
+                        }
+
                 }
 
-                if (check_segment_rectangle_collisions(seg, obstacles[i])) {
-                        return true;
-                }
         }
 
         return false;
+}
+
+int add_obstacle(struct rectangle obstacle)
+{
+        if (num_obstacles >= MAX_NUM_OBJ) {
+                return -1;
+        }
+
+        obstacles[num_obstacles] = obstacle;
+        num_obstacles++;
+
+        return 0;
 }
 
 int generate_configuration_space()
@@ -133,13 +148,13 @@ int generate_configuration_space()
                         return ret;
                 }
 
-                double x0_endpoint = ARM_ORIGIN_X + x0_delta;
-                double y0_endpoint = ARM_ORIGIN_Y + y0_delta;
+                double x0_endpoint = ARM_ORIGIN_X_MM + x0_delta;
+                double y0_endpoint = ARM_ORIGIN_Y_MM + y0_delta;
 
                 /*
                  * Calculate collisions in workspace
                  */
-                if (check_collisions(ARM_ORIGIN_X, ARM_ORIGIN_Y, x0_endpoint, y0_endpoint)) {
+                if (check_collisions(ARM_ORIGIN_X_MM, ARM_ORIGIN_Y_MM, x0_endpoint, y0_endpoint)) {
                         for (int j = 0; j < ARM_RANGE; j += ARM_DEGREE_INC) {
                                 LOG_INF("Recording collision at angles: (theta0: %d, theta1: %d)", theta0 ,j);
                                 cspace[theta0][j] = 1;
@@ -179,7 +194,7 @@ int generate_configuration_space()
 
         LOG_INF("Finished Generating Configuration Space");
 
-        // print_cspace();
+        print_cspace();
 
         return 0;
 }

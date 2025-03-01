@@ -7,8 +7,14 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <lib/map_utils.h>
 
 #define MAX_NUM_OBJ 10
+
+/**
+ * @brief Add a known obstacle to the environment
+ */
+int add_obstacle(struct rectangle obstacle);
 
 /**
  * @brief Generates the configuration space given a workspace map
