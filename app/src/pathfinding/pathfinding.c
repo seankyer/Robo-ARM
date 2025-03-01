@@ -8,7 +8,7 @@
 LOG_MODULE_REGISTER(pathfinding, LOG_LEVEL_INF);
 
 /* Configuration space representation */
-#define ARM_LEN_MM     150 /* arm length in mm */
+#define ARM_LEN_MM     100 /* arm length in mm */
 #define ARM_WIDTH_MM   30  /* arm length in mm */
 #define ARM_RANGE      180 /* arm range of motion in degrees */
 #define ARM_DEGREE_INC 1   /* degrees increment */

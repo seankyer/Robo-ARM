@@ -14,9 +14,11 @@ int main(void)
 {
 	int ret;
 
-	ret = add_obstacle(&obstacle1);
-	if (ret) {
-		LOG_ERR("Error adding obstacle!");
+	for (int i = 0; i < sizeof(obstacles)/sizeof(struct rectangle); i++) {
+		ret = add_obstacle(&obstacles[i]);
+		if (ret) {
+			LOG_ERR("Error adding obstacle!");
+		}
 	}
 
 	ret = generate_configuration_space();
