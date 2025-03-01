@@ -26,7 +26,7 @@ def run_and_execute_app():
         elapsed_time = time.time() - start_time
         if elapsed_time > timeout:
             log.inf("Process timed out, terminating")
-            process.teminate()
+            process.terminate()
             exit
 
         with open(log_file, "r") as f:
