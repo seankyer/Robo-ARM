@@ -14,7 +14,7 @@ int main(void)
 {
         int ret;
 
-        ret = add_obstacle(obstacle1);
+        ret = add_obstacle(&obstacle1);
         if (ret) {
                 LOG_ERR("Error adding obstacle!");
         }
