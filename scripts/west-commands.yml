@@ -1,0 +1,6 @@
+west-commands:
+  - file: scripts/west_pathfind.py
+    commands:
+      - name: pathfind
+        class: Pathfind
+        help: Build and run Pathfinding in native_sim, capture output and generate space plots

@@ -53,30 +53,50 @@ static struct rectangle obstacles[MAX_NUM_OBJ];
  */
 static uint8_t cspace[ARM_RANGE / ARM_DEGREE_INC][ARM_RANGE / ARM_DEGREE_INC] = {{0}};
 
-/**
- * @brief Print the cspace to the console
- */
-static void print_cspace() __attribute__((unused));
 
 /**
- * @brief Print the workspace to the console
+ * @brief Marker in .txt file for CSPACE
  */
-static void print_workspace() __attribute__((unused));
+#define CSPACE_MARKER "===CSPACE==="
+
+/**
+ * @brief Marker in .txt file for WSPACE
+ */
+#define WSPACE_MARKER "===WSPACE==="
+
+/**
+ * @brief Marker in .txt file marking done
+ */
+#define SPACE_MARKER "===DONE==="
+
+/**
+ * @brief Print wspace and cpasce to console with delimiters
+ */
+static void print_spaces() __attribute__((unused));
 
 static void print_cspace()
 {
+	/* Print cspace marker */
+	printf("%s\n", CSPACE_MARKER);
+
 	for (int i = 0; i < ARM_RANGE; i++) {
 		for (int j = 0; j < ARM_RANGE; j++) {
 			printf("%d", cspace[i][j]);
 		}
 		printf("\n");
 	}
+
+	/* Printf close cpsace drawing */
+	printf("%s\n", CSPACE_MARKER);
 }
 
-void print_workspace()
+static void print_wspace()
 {
 	int num_rows = sizeof(workspace) / sizeof(workspace[0]);
 	int num_cols = sizeof(workspace[0]) / sizeof(workspace[0][0]);
+
+	/* Print wspace marker */
+	printf("%s\n", WSPACE_MARKER);
 
 	for (int i = 0; i < num_rows; i++) {
 		for (int j = 0; j < num_cols; j++) {
@@ -84,6 +104,18 @@ void print_workspace()
 		}
 		printf("\n");
 	}
+
+	/* Printf close wpsace drawing */
+	printf("%s\n", WSPACE_MARKER);
+}
+
+void print_spaces()
+{
+	print_cspace();
+	print_wspace();
+
+	/* Print done message */
+	printf("%s\n", SPACE_MARKER);
 }
 
 /**
@@ -180,10 +212,6 @@ static void mark_obstacle_in_workspace(struct rectangle *obstacle)
 				   fmax(obstacle->right.y1, obstacle->right.y2)));
 
 	/* Iterate through bounding box and mark points inside the rectangle to workspace */
-	printf("min_x: %d\n", min_x);
-	printf("max_x: %d\n", max_x);
-	printf("min_y: %d\n", min_y);
-	printf("max_y: %d\n", max_y);
 	for (int y = min_y; y <= max_y; y++) {
 		for (int x = min_x; x <= max_x; x++) {
 			if (is_point_in_rectangle_helper(obstacle, x, y)) {
@@ -285,8 +313,7 @@ int generate_configuration_space()
 
 	LOG_INF("Finished Generating Configuration Space");
 
-	// print_cspace();
-	print_workspace();
+	print_spaces();
 
 	return 0;
 }
