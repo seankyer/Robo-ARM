@@ -12,18 +12,17 @@ LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
 int main(void)
 {
-        int ret;
+	int ret;
 
-        ret = add_obstacle(&obstacle1);
-        if (ret) {
-                LOG_ERR("Error adding obstacle!");
-        }
+	ret = add_obstacle(&obstacle1);
+	if (ret) {
+		LOG_ERR("Error adding obstacle!");
+	}
 
-        ret = generate_configuration_space();
-        if (ret) {
-                LOG_ERR("Couldn't generate configuration space");
-        }
+	ret = generate_configuration_space();
+	if (ret) {
+		LOG_ERR("Couldn't generate configuration space");
+	}
 
-        return 0;
+	return 0;
 }
-
