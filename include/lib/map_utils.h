@@ -50,6 +50,16 @@ struct rectangle {
 int get_segment_endpoint_trig(double hypotenuse, double angle_d, double *x, double *y);
 
 /**
+ * @brief Translate a line segment by a given magnitude
+ *
+ * @param[in] segment The line segment to translate
+ * @param[in] magnitude The magnitude of translation
+ *
+ * @retval The result of the translated vector
+ */
+struct segment translate_segment(struct segment segment, double magnitude);
+
+/**
  * @brief Determine if two segments intersect
  *
  * Define the following vectors:

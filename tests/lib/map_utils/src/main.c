@@ -7,19 +7,77 @@
 #include <errno.h>
 #include <math.h>
 
-#define EPSILON 1e-6
+#define EPSILON 0.001
 
-static void set_segment(struct segment *seg, int16_t x1, int16_t y1, int16_t x2, int16_t y2)
+static void set_segment(struct segment *seg, double x1, double y1, double x2, double y2)
 {
-        seg->x1 = (double)x1;
-        seg->y1 = (double)y1;
-        seg->x2 = (double)x2;
-        seg->y2 = (double)y2;
+        seg->x1 = x1;
+        seg->y1 = y1;
+        seg->x2 = x2;
+        seg->y2 = y2;
 }
 
 static bool float_equal(double a, double b)
 {
         return fabs(a - b) < EPSILON;
+}
+
+static bool compare_segments(struct segment s1, struct segment s2)
+{
+        if (!float_equal(s1.x1, s2.x1)) {
+                return false;
+        } else if(!float_equal(s1.y1, s2.y1)) {
+                return false;
+        } else if(!float_equal(s1.x2, s2.x2)) {
+                return false;
+        } else if(!float_equal(s1.y2, s2.y2)) {
+                return false;
+        }
+
+        return true;
+}
+
+ZTEST(map_utils, test_segment_translation)
+{
+        struct segment start;
+        struct segment end;
+        double mag;
+
+        /* Horizontal line shift */
+        set_segment(&start, 0, 0, 4, 0);
+        set_segment(&end, 0, 2, 4, 2);
+        mag = 2;
+        zassert_equal(compare_segments(translate_segment(start, mag), end), true);
+
+        /* Vertical line shift */
+        set_segment(&start, 0, 0, 0, 4);
+        set_segment(&end, -2, 0, -2, 4);
+        mag = 2;
+        zassert_equal(compare_segments(translate_segment(start, mag), end), true);
+
+        /* Diagonal line shift */
+        set_segment(&start, 0, 0, 3, 3);
+        set_segment(&end, -1.414, 1.414, 1.586, 4.414);
+        mag = 2;
+        zassert_equal(compare_segments(translate_segment(start, mag), end), true);
+
+        /* Negative shift */
+        set_segment(&start, 0, 0, 4, 3);
+        set_segment(&end, 1.2, -1.6, 5.2, 1.4);
+        mag = -2;
+        zassert_equal(compare_segments(translate_segment(start, mag), end), true);
+
+        /* Very small shift */
+        set_segment(&start, 1, 1, 4, 5);
+        set_segment(&end, 0.9997, 1.0006, 3.9997, 5.0006);
+        mag = 0.001;
+        zassert_equal(compare_segments(translate_segment(start, mag), end), true);
+
+        /* Very large shift */
+        set_segment(&start, 0, 0, 1, 1);
+        set_segment(&end, -707.107, 707.107, -706.107, 708.107);
+        mag = 1000;
+        zassert_equal(compare_segments(translate_segment(start, mag), end), true);
 }
 
 ZTEST(map_utils, test_segment_end_trig)
@@ -56,7 +114,6 @@ ZTEST(map_utils, test_segment_end_trig)
 
         ret = get_segment_endpoint_trig(5, 360, &x, &y);
         zassert_equal(ret, 0);
-        printf("x: %f, y: %f\n", x, y);
         zassert_equal(float_equal(x, 5), true);
         zassert_equal(float_equal(y, 0), true);
 

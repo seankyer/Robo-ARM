@@ -21,6 +21,30 @@ int get_segment_endpoint_trig(double hypotenuse, double angle_d, double *x, doub
         return 0;
 }
 
+struct segment translate_segment(struct segment segment, double magnitude)
+{
+        /* Compute the direction vector */
+        double dx = segment.x2 - segment.x1;
+        double dy = segment.y2 - segment.y1;
+
+        /* Compute the length of the vector */
+        double length = sqrt((dx * dx) + (dy * dy));
+
+        /* Compute the shift vector */
+        double x_shift = magnitude * (-dy / length);
+        double y_shift = magnitude * (dx /length);
+
+        /* Perform shift */
+        struct segment translatedSeg = {
+                .x1 = segment.x1 + x_shift,
+                .y1 = segment.y1 + y_shift,
+                .x2 = segment.x2 + x_shift,
+                .y2 = segment.y2 + y_shift
+        };
+
+        return translatedSeg;
+}
+
 bool check_segment_segment_intersect(struct segment s1, struct segment s2)
 {
         double b = (s2.x2 - s2.x1) * (s1.y2 - s1.y1) - (s2.y2 - s2.y1) * (s1.x2 - s1.x1);
