@@ -5,16 +5,7 @@
 #include <zephyr/logging/log.h>
 #include <spaces.h>
 
-LOG_MODULE_REGISTER(pathfinding, LOG_LEVEL_INF);
-
-/* Configuration space representation */
-#define ARM_LEN_MM     100 /* arm length in mm */
-#define ARM_WIDTH_MM   30  /* arm length in mm */
-#define ARM_RANGE      180 /* arm range of motion in degrees */
-#define ARM_DEGREE_INC 1   /* degrees increment */
-
-/* Real-world 'workspace' representation */
-#define WORKSPACE_SQMM 395
+LOG_MODULE_REGISTER(spaces, LOG_LEVEL_INF);
 
 /**
  * @brief Required mm of clearance between arm edge and obstacles
@@ -34,7 +25,7 @@ LOG_MODULE_REGISTER(pathfinding, LOG_LEVEL_INF);
 /**
  * @brief Workspace array
  */
-static uint8_t wspace[WORKSPACE_SQMM][WORKSPACE_SQMM] = {{0}};
+static uint8_t wspace[WORKSPACE_DIMENSION][WORKSPACE_DIMENSION] = {{0}};
 
 /**
  * @brief Number of known obstacles
@@ -51,68 +42,7 @@ static struct rectangle obstacles[MAX_NUM_OBJ];
  *
  * ARM_RANGE x ARM_RANGE grid of possible configurations for arms
  */
-static uint8_t cspace[ARM_RANGE / ARM_DEGREE_INC][ARM_RANGE / ARM_DEGREE_INC] = {{0}};
-
-/**
- * @brief Marker in .txt file for CSPACE
- */
-#define CSPACE_MARKER "===CSPACE==="
-
-/**
- * @brief Marker in .txt file for WSPACE
- */
-#define WSPACE_MARKER "===WSPACE==="
-
-/**
- * @brief Marker in .txt file marking done
- */
-#define SPACE_MARKER "===DONE==="
-
-/**
- * @brief Print wspace and cspace to console with delimiters
- */
-static void print_spaces() __attribute__((unused));
-
-static void print_cspace()
-{
-	/* Print cspace marker */
-	printf("%s\n", CSPACE_MARKER);
-
-	for (int i = 0; i < ARM_RANGE; i++) {
-		for (int j = 0; j < ARM_RANGE; j++) {
-			printf("%d", cspace[i][j]);
-		}
-		printf("\n");
-	}
-
-	/* Printf close cspace drawing */
-	printf("%s\n", CSPACE_MARKER);
-}
-
-static void print_wspace()
-{
-	/* Print wspace marker */
-	printf("%s\n", WSPACE_MARKER);
-
-	for (int i = 0; i < WORKSPACE_SQMM; i++) {
-		for (int j = 0; j < WORKSPACE_SQMM; j++) {
-			printf("%d", wspace[i][j]);
-		}
-		printf("\n");
-	}
-
-	/* Printf close wspace drawing */
-	printf("%s\n", WSPACE_MARKER);
-}
-
-void print_spaces()
-{
-	print_cspace();
-	print_wspace();
-
-	/* Print done message */
-	printf("%s\n", SPACE_MARKER);
-}
+static uint8_t cspace[CSPACE_DIMENSION][CSPACE_DIMENSION] = {{0}};
 
 /**
  * @brief Checks if arm position collides with environment
@@ -282,7 +212,25 @@ int generate_configuration_space()
 
 	LOG_INF("Finished Generating Configuration Space");
 
-	print_spaces();
+	return 0;
+}
 
+int get_wspace(uint8_t (**wspace_out)[WORKSPACE_DIMENSION])
+{
+	if (wspace_out == NULL) {
+		return -1;
+	}
+
+	*wspace_out = wspace;
+	return 0;
+}
+
+int get_cspace(uint8_t (**cspace_out)[CSPACE_DIMENSION])
+{
+	if (cspace_out == NULL) {
+		return -1;
+	}
+
+	*cspace_out = cspace;
 	return 0;
 }
