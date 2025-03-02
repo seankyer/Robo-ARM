@@ -11,6 +11,7 @@ project(app)
 target_sources(app PRIVATE
         src/main.c
         src/pathfinding/spaces.c
+        src/pathfinding/pathfinding.c
 )
 
 target_include_directories(app PRIVATE

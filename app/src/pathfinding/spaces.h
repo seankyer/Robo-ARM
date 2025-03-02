@@ -48,8 +48,22 @@
  */
 #define ARM_DEGREE_INC 1
 
+/**
+ * @brief Arm X origin
+ */
+#define ARM_ORIGIN_X_MM WORKSPACE_SQMM / 2
+
+/**
+ * @brief Arm Y origin
+ */
+#define ARM_ORIGIN_Y_MM 30
+
 /*
  * Configuration space definitions
+ */
+
+/**
+ * @brief Configuration space dimensions in degrees^2
  */
 #define CSPACE_DIMENSION ARM_RANGE / ARM_DEGREE_INC
 
@@ -72,7 +86,7 @@ int generate_configuration_space(void);
  *
  * @retval 0 on success, non-zero otherwise
  */
-int get_wspace(uint8_t (**wspace)[WORKSPACE_DIMENSION]);
+int get_wspace(uint8_t (**wspace_out)[WORKSPACE_DIMENSION]);
 
 /**
  * @brief Get a pointer to the configuration space
@@ -81,6 +95,6 @@ int get_wspace(uint8_t (**wspace)[WORKSPACE_DIMENSION]);
  *
  * @retval 0 on success, non-zero otherwise
  */
-int get_cspace(uint8_t (**cspace)[CSPACE_DIMENSION]);
+int get_cspace(uint8_t (**cspace_out)[CSPACE_DIMENSION]);
 
 #endif /* APP_SPACES_H_ */

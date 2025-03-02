@@ -13,16 +13,6 @@ LOG_MODULE_REGISTER(spaces, LOG_LEVEL_INF);
 #define REQUIRED_CLEARANCE_MM 3
 
 /**
- * @brief Arm X origin
- */
-#define ARM_ORIGIN_X_MM WORKSPACE_SQMM / 2
-
-/**
- * @brief Arm Y origin
- */
-#define ARM_ORIGIN_Y_MM 30
-
-/**
  * @brief Workspace array
  */
 static uint8_t wspace[WORKSPACE_DIMENSION][WORKSPACE_DIMENSION] = {{0}};
@@ -179,9 +169,6 @@ int generate_configuration_space()
 		 * perpendicular to theta0 since each arm is in series with each other.
 		 */
 		for (int theta1 = 0; theta1 < ARM_RANGE; theta1 += ARM_DEGREE_INC) {
-
-			// for (int theta1 = theta0 - (ARM_RANGE / 2); theta1 < theta0 + (ARM_RANGE
-			// / 2); 	theta1 += ARM_DEGREE_INC) {
 
 			double x1_delta;
 			double y1_delta;

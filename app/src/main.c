@@ -5,20 +5,37 @@
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 #include <app_version.h>
-#include <utils.h>
+#include <pathfinding.h>
 #include <spaces.h>
+#include <utils.h>
 
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
-int main(void)
+static void print_work(void)
 {
-	int ret;
-
 	/*
 	 * Pointers to generated spaces
 	 */
 	uint8_t (*cspace)[CSPACE_DIMENSION];
 	uint8_t (*wspace)[WORKSPACE_DIMENSION];
+
+	/*
+	 * Get and print spaces for python script
+	 */
+	if (get_path_cspace(&cspace)) {
+		LOG_ERR("Couldn't get cspace!");
+	}
+
+	if (get_path_wspace(&wspace)) {
+		LOG_ERR("Couldn't get wspace!");
+	}
+
+	print_spaces(cspace, wspace);
+}
+
+int main(void)
+{
+	int ret;
 
 	/*
 	 * Add known obstacles to workspace
@@ -38,16 +55,20 @@ int main(void)
 		LOG_ERR("Couldn't generate configuration space");
 	}
 
-	/*
-	 * Get and print spaces for python script
-	 */
-	get_cspace(&cspace);
-	get_wspace(&wspace);
-	print_spaces(cspace, wspace);
+	struct pathfinding_steps plan[MAX_NUM_STEPS];
 
 	/*
-	 * Given two points in space, calculate the path
+	 * Given two points in space, calculate the path.
+	 *
+	 * TODO: Eventually, the state of the robot and its current X,Y coordinates
+	 *       will be stored and processed in a thread
 	 */
+	ret = pathfinding_calculate_path(10, 10, 170, 200, &plan);
+	if (ret) {
+		LOG_ERR("Error during pathfinding (err: %d)", ret);
+	}
+
+	print_work();
 
 	return 0;
 }
