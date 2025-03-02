@@ -6,7 +6,7 @@
 #include <zephyr/logging/log.h>
 #include <app_version.h>
 #include <obstacles.h>
-#include <pathfinding.h>
+#include <spaces.h>
 
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
@@ -14,6 +14,9 @@ int main(void)
 {
 	int ret;
 
+	/*
+	 * Add known obstacles to workspace
+	 */
 	for (int i = 0; i < sizeof(obstacles)/sizeof(struct rectangle); i++) {
 		ret = add_obstacle(&obstacles[i]);
 		if (ret) {
@@ -21,6 +24,9 @@ int main(void)
 		}
 	}
 
+	/*
+	 * Generate cspace
+	 */
 	ret = generate_configuration_space();
 	if (ret) {
 		LOG_ERR("Couldn't generate configuration space");

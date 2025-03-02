@@ -2,8 +2,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-#ifndef APP_PATHFINDING_H_
-#define APP_PATHFINDING_H_
+#ifndef APP_SPACES_H_
+#define APP_SPACES_H_
 
 #include <stdbool.h>
 #include <stdint.h>
@@ -23,4 +23,4 @@ int add_obstacle(struct rectangle *obstacle);
  */
 int generate_configuration_space(void);
 
-#endif /* APP_PATHFINDING_H_ */
+#endif /* APP_SPACES_H_ */

@@ -3,7 +3,7 @@
 #include <math.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
-#include <pathfinding.h>
+#include <spaces.h>
 
 LOG_MODULE_REGISTER(pathfinding, LOG_LEVEL_INF);
 
@@ -51,7 +51,7 @@ static struct rectangle obstacles[MAX_NUM_OBJ];
  *
  * ARM_RANGE x ARM_RANGE grid of possible configurations for arms
  */
-static bool cspace[ARM_RANGE / ARM_DEGREE_INC][ARM_RANGE / ARM_DEGREE_INC] = {{0}};
+static uint8_t cspace[ARM_RANGE / ARM_DEGREE_INC][ARM_RANGE / ARM_DEGREE_INC] = {{0}};
 
 /**
  * @brief Marker in .txt file for CSPACE
