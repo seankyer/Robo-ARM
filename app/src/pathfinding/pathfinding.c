@@ -26,44 +26,23 @@ static int mark_solution_region(int x, int y, int tolerance)
 {
 	int ret;
 
+	double x_end;
+	double y_end;
+
 	for (int theta0 = 0; theta0 < ARM_RANGE; theta0 += ARM_DEGREE_INC) {
-
-		double x0_delta;
-		double y0_delta;
-
-		/*
-		 * This gets the endpoint assuming origin of 0
-		 */
-		ret = get_segment_endpoint_trig(ARM_LEN_MM, (double)theta0, &x0_delta, &y0_delta);
-		if (ret) {
-			LOG_ERR("Error during segment endpoint calculation (err: %d)\n", ret);
-			return ret;
-		}
-
-		double x0_endpoint = ARM_ORIGIN_X_MM + x0_delta;
-		double y0_endpoint = ARM_ORIGIN_Y_MM + y0_delta;
-
 		for (int theta1 = 0; theta1 < ARM_RANGE; theta1 += ARM_DEGREE_INC) {
-
-			double x1_delta;
-			double y1_delta;
-
-			ret = get_segment_endpoint_trig(ARM_LEN_MM,
-							(double)theta1 + (theta0 - (ARM_RANGE / 2)),
-							&x1_delta, &y1_delta);
+			ret = get_arm_endpoint(theta0, theta1, ARM_LEN_MM, ARM_RANGE, ARM_ORIGIN_X_MM, ARM_ORIGIN_Y_MM, &x_end, &y_end);
 			if (ret) {
-				LOG_ERR("Error during segment endpoint calculation (err: %d)\n",
-					ret);
-				return ret;
+				LOG_ERR("Error calculating arm endpoint! (err: %d)", ret);
 			}
 
-			int x1_endpoint = ceil(x0_endpoint + x1_delta);
-			int y1_endpoint = ceil(y0_endpoint + y1_delta);
+			x_end = ceil(x_end);
+			y_end = ceil(y_end);
 
 			/*
 			 * If cspace region is not obscured, mark it as potential solution space
 			 */
-			if ((x1_endpoint >= x - tolerance && x1_endpoint <= x + tolerance) && (y1_endpoint >= y - tolerance && y1_endpoint <= y + tolerance)) {
+			if (((int)x_end >= x - tolerance && (int)x_end <= x + tolerance) && ((int)y_end >= y - tolerance && (int)y_end <= y + tolerance)) {
 				if (path_cspace[theta1][theta0] != 1) {
 					path_cspace[theta1][theta0] = PATH;
 				}

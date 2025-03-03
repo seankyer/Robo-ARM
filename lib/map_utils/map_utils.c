@@ -92,3 +92,39 @@ bool check_segment_rectangle_collisions(struct segment segment, struct rectangle
 
 	return collision;
 }
+
+int get_arm_endpoint(double theta0, double theta1, double len, double range, double origin_x, double origin_y, double *end_x, double *end_y)
+{
+	int ret;
+
+	double x0_delta;
+	double y0_delta;
+	double x1_delta;
+	double y1_delta;
+
+	/*
+	 * This gets the endpoint assuming origin of 0
+	 */
+	ret = get_segment_endpoint_trig(len, (double)theta0, &x0_delta, &y0_delta);
+	if (ret) {
+		return ret;
+	}
+
+	/*
+	 * Assuming theta1 is perpendicular to theta0,
+	 * we calculate on an axis aligned basis. Thus,
+	 * we minus 90 degrees from theta0 and add to
+	 * theta1.
+	 */
+	ret = get_segment_endpoint_trig(len,
+					(double)theta1 + (theta0 - 90),
+					&x1_delta, &y1_delta);
+	if (ret) {
+		return ret;
+	}
+
+	*end_x = origin_x + x0_delta + x1_delta;
+	*end_y = origin_y + y0_delta + y1_delta;
+
+	return 0;
+}
