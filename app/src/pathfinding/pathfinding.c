@@ -8,30 +8,6 @@
 LOG_MODULE_REGISTER(pathfinding, LOG_LEVEL_INF);
 
 /**
- * @brief Endpoint marker in wspace
- */
-#define ENDPOINT_MARK 2
-
-/**
- * @brief Startpoint marker in wspace
- */
-#define STARTPOINT_MARK 3
-
-/**
- * @brief Solution space marker
- */
-#define SOLUTION_MARK 2
-
-/**
- * @brief Allowable tolerance for pathfinding
- *
- * It's unlikely that a combination of angles will exactly equal
- * the target X,Y coordinate, so we must define some allowable
- * error tolerance in mm
- */
-#define ALLOWABLE_TOLERANCE_MM 1
-
-/**
  * @brief Pathfinding workspace
  */
 static uint8_t path_wspace[WORKSPACE_DIMENSION][WORKSPACE_DIMENSION];
@@ -89,7 +65,7 @@ static int mark_solution_region(int x, int y, int tolerance)
 			 */
 			if ((x1_endpoint >= x - tolerance && x1_endpoint <= x + tolerance) && (y1_endpoint >= y - tolerance && y1_endpoint <= y + tolerance)) {
 				if (path_cspace[theta1][theta0] != 1) {
-					path_cspace[theta1][theta0] = SOLUTION_MARK;
+					path_cspace[theta1][theta0] = PATH;
 				}
 			}
 		}
@@ -118,9 +94,11 @@ int pathfinding_calculate_path(int start_theta0, int start_theta1, int end_x, in
 	memcpy(path_wspace, temp_wspace, WORKSPACE_DIMENSION * sizeof(temp_wspace[0]));
 
 	/*
-	 * 2. Mark start/endpoint on wspace
+	 * 2. Mark start/endpoint on wspace, if not occupied
 	 */
-	path_wspace[end_y][end_x] = ENDPOINT_MARK;
+	if (path_wspace[end_y][end_x] != 1) {
+		path_wspace[end_y][end_x] = END_POINT;
+	}
 	/* TODO: Add a helper to map_utils that given theta0 and theta1, and the origin, calculates final X,Y coords */
 
 	/*

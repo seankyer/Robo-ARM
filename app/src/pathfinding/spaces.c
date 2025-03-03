@@ -8,9 +8,9 @@
 LOG_MODULE_REGISTER(spaces, LOG_LEVEL_INF);
 
 /**
- * @brief Required mm of clearance between arm edge and obstacles
+ * @brief Upper limit for number of obstacles
  */
-#define REQUIRED_CLEARANCE_MM 3
+#define MAX_NUM_OBJ 10
 
 /**
  * @brief Workspace array
