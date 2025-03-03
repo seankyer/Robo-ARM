@@ -36,17 +36,17 @@
 /**
  * @brief Arm length in mm (both arms same size)
  */
-#define ARM_LEN_MM     100
+#define ARM_LEN_MM 100
 
 /**
  * @brief Arm width in mm (both arms same size)
  */
-#define ARM_WIDTH_MM   30  /* arm length in mm */
+#define ARM_WIDTH_MM 30 /* arm length in mm */
 
 /**
  * @brief Arm range of motion in degrees
  */
-#define ARM_RANGE      180
+#define ARM_RANGE 180
 
 /**
  * @brief Arm degree steps
@@ -78,9 +78,9 @@
 enum markers {
 	FREE = 0U,
 	OCCUPIED = 1U,
-        START_POINT = 2U,
-        END_POINT = 3U,
-        PATH = 4U,
+	START_POINT = 2U,
+	END_POINT = 3U,
+	PATH = 4U,
 };
 
 #endif /* APP_PATH_COMMON_H_ */

@@ -17,8 +17,8 @@
  * @brief Struct holding a single step of path
  */
 struct pathfinding_steps {
-        int theta0; /**< Angle of inclination for ARM0 */
-        int theta1; /**< Angle of inclination for ARM1 */
+	int theta0; /**< Angle of inclination for ARM0 */
+	int theta1; /**< Angle of inclination for ARM1 */
 };
 
 /**
@@ -40,7 +40,8 @@ struct pathfinding_steps {
  *
  * @retval 0 on success, non-zero otherwise
  */
-int pathfinding_calculate_path(int start_theta0, int start_theta1, int end_x, int end_y, struct pathfinding_steps (*plan)[MAX_NUM_STEPS]);
+int pathfinding_calculate_path(int start_theta0, int start_theta1, int end_x, int end_y,
+			       struct pathfinding_steps (*plan)[MAX_NUM_STEPS]);
 
 /**
  * @brief Get a pointer to the pathfinding wspace

@@ -93,7 +93,8 @@ bool check_segment_rectangle_collisions(struct segment segment, struct rectangle
 	return collision;
 }
 
-int get_arm_endpoint(double theta0, double theta1, double len, double range, double origin_x, double origin_y, double *end_x, double *end_y)
+int get_arm_endpoint(double theta0, double theta1, double len, double range, double origin_x,
+		     double origin_y, double *end_x, double *end_y)
 {
 	int ret;
 
@@ -116,9 +117,7 @@ int get_arm_endpoint(double theta0, double theta1, double len, double range, dou
 	 * we minus 90 degrees from theta0 and add to
 	 * theta1.
 	 */
-	ret = get_segment_endpoint_trig(len,
-					(double)theta1 + (theta0 - 90),
-					&x1_delta, &y1_delta);
+	ret = get_segment_endpoint_trig(len, (double)theta1 + (theta0 - 90), &x1_delta, &y1_delta);
 	if (ret) {
 		return ret;
 	}

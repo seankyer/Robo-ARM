@@ -26,6 +26,7 @@
 /**
  * @brief Print wspace and cspace to console with delimiters
  */
-void print_spaces(uint8_t (*cspace)[CSPACE_DIMENSION], uint8_t (*wspace)[WORKSPACE_DIMENSION]) __attribute__((unused));
+void print_spaces(uint8_t (*cspace)[CSPACE_DIMENSION], uint8_t (*wspace)[WORKSPACE_DIMENSION])
+	__attribute__((unused));
 
 #endif /* APP_UTILS_H_ */

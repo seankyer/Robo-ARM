@@ -31,7 +31,8 @@ static int mark_solution_region(int x, int y, int tolerance)
 
 	for (int theta0 = 0; theta0 < ARM_RANGE; theta0 += ARM_DEGREE_INC) {
 		for (int theta1 = 0; theta1 < ARM_RANGE; theta1 += ARM_DEGREE_INC) {
-			ret = get_arm_endpoint(theta0, theta1, ARM_LEN_MM, ARM_RANGE, ARM_ORIGIN_X_MM, ARM_ORIGIN_Y_MM, &x_end, &y_end);
+			ret = get_arm_endpoint(theta0, theta1, ARM_LEN_MM, ARM_RANGE,
+					       ARM_ORIGIN_X_MM, ARM_ORIGIN_Y_MM, &x_end, &y_end);
 			if (ret) {
 				LOG_ERR("Error calculating arm endpoint! (err: %d)", ret);
 			}
@@ -42,7 +43,8 @@ static int mark_solution_region(int x, int y, int tolerance)
 			/*
 			 * If cspace region is not obscured, mark it as potential solution space
 			 */
-			if (((int)x_end >= x - tolerance && (int)x_end <= x + tolerance) && ((int)y_end >= y - tolerance && (int)y_end <= y + tolerance)) {
+			if (((int)x_end >= x - tolerance && (int)x_end <= x + tolerance) &&
+			    ((int)y_end >= y - tolerance && (int)y_end <= y + tolerance)) {
 				if (path_cspace[theta1][theta0] != 1) {
 					path_cspace[theta1][theta0] = PATH;
 				}
@@ -53,13 +55,14 @@ static int mark_solution_region(int x, int y, int tolerance)
 	return 0;
 }
 
-int pathfinding_calculate_path(int start_theta0, int start_theta1, int end_x, int end_y, struct pathfinding_steps (*plan)[MAX_NUM_STEPS])
+int pathfinding_calculate_path(int start_theta0, int start_theta1, int end_x, int end_y,
+			       struct pathfinding_steps (*plan)[MAX_NUM_STEPS])
 {
 	/*
 	 * 1. Reset path_wspace and path_cspace
 	 */
-	uint8_t (*temp_cspace)[CSPACE_DIMENSION];
-	uint8_t (*temp_wspace)[WORKSPACE_DIMENSION];
+	uint8_t(*temp_cspace)[CSPACE_DIMENSION];
+	uint8_t(*temp_wspace)[WORKSPACE_DIMENSION];
 
 	if (get_cspace(&temp_cspace)) {
 		LOG_ERR("Couldn't get cspace!");
@@ -78,7 +81,8 @@ int pathfinding_calculate_path(int start_theta0, int start_theta1, int end_x, in
 	if (path_wspace[end_y][end_x] != 1) {
 		path_wspace[end_y][end_x] = END_POINT;
 	}
-	/* TODO: Add a helper to map_utils that given theta0 and theta1, and the origin, calculates final X,Y coords */
+	/* TODO: Add a helper to map_utils that given theta0 and theta1, and the origin, calculates
+	 * final X,Y coords */
 
 	/*
 	 * 3. Mark solution territory on cspace

@@ -107,7 +107,6 @@ bool check_segment_segment_intersect(struct segment segment1, struct segment seg
  */
 bool check_segment_rectangle_collisions(struct segment segment, struct rectangle rectangle);
 
-
 /**
  * @brief Returns the end X,Y coordinates given two arm angles and origin
  *
@@ -122,6 +121,7 @@ bool check_segment_rectangle_collisions(struct segment segment, struct rectangle
  *
  * @retval 0 for success, non-zero otherwise
  */
-int get_arm_endpoint(double theta0, double theta1, double len, double range, double origin_x, double origin_y, double *end_x, double *end_y);
+int get_arm_endpoint(double theta0, double theta1, double len, double range, double origin_x,
+		     double origin_y, double *end_x, double *end_y);
 
 #endif /* MAP_UTILS_H_ */
