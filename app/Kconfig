@@ -13,3 +13,13 @@ endmenu
 module = APP
 module-str = APP
 source "subsys/logging/Kconfig.template.log_config"
+
+# Pathfinding graphing algorithm choice
+choice
+        prompt "Pathfinding algorithm"
+        default GRAPH_BFS
+
+config GRAPH_BFS
+        bool "Breafth-First Search Algorithm:"
+
+endchoice

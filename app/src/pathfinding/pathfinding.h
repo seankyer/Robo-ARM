@@ -41,7 +41,7 @@ struct pathfinding_steps {
  * @retval 0 on success, non-zero otherwise
  */
 int pathfinding_calculate_path(int start_theta0, int start_theta1, int end_x, int end_y,
-			       struct pathfinding_steps (*plan)[MAX_NUM_STEPS]);
+			       struct pathfinding_steps (*plan)[MAX_NUM_STEPS], int *num_steps);
 
 /**
  * @brief Get a pointer to the pathfinding wspace

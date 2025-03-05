@@ -67,7 +67,7 @@ int main(void)
 	for (int i = 0; i < sizeof(obstacles) / sizeof(struct rectangle); i++) {
 		ret = add_obstacle(&obstacles[i]);
 		if (ret) {
-			LOG_ERR("Error adding obstacle!");
+			LOG_ERR("Error adding obstacle! (err: %d)", ret);
 		}
 	}
 
@@ -77,9 +77,11 @@ int main(void)
 	ret = generate_configuration_space();
 	if (ret) {
 		LOG_ERR("Couldn't generate configuration space");
+		return ret;
 	}
 
 	struct pathfinding_steps plan[MAX_NUM_STEPS];
+	int num_steps;
 
 	/*
 	 * Given two points in space, calculate the path.
@@ -87,9 +89,10 @@ int main(void)
 	 * TODO: Eventually, the state of the robot and its current X,Y coordinates
 	 *       will be stored and processed in a thread
 	 */
-	ret = pathfinding_calculate_path(10, 10, 170, 200, &plan);
+	ret = pathfinding_calculate_path(30, 160, 170, 200, &plan, &num_steps);
 	if (ret) {
 		LOG_ERR("Error during pathfinding (err: %d)", ret);
+		return ret;
 	}
 
 	print_work();

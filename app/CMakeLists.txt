@@ -12,6 +12,7 @@ target_sources(app PRIVATE
         src/main.c
         src/pathfinding/spaces.c
         src/pathfinding/pathfinding.c
+        src/pathfinding/graph/graph.c
         src/utils/utils.c
 )
 
@@ -19,4 +20,5 @@ target_include_directories(app PRIVATE
         ${CMAKE_SOURCE_DIR}/src
         ${CMAKE_SOURCE_DIR}/src/utils
         ${CMAKE_SOURCE_DIR}/src/pathfinding
+        ${CMAKE_SOURCE_DIR}/src/pathfinding/graph
 )
