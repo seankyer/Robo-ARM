@@ -28,9 +28,10 @@ static uint8_t path_cspace[CSPACE_DIMENSION][CSPACE_DIMENSION];
  *
  * Assumes that path_cspace and path_wspace contain valid data
  */
-static int calculate_path(struct pathfinding_steps (*plan)[MAX_NUM_STEPS], int *num_steps, int start_theta0, int start_theta1)
+static int calculate_path(struct pathfinding_steps plan[MAX_NUM_STEPS], int *num_steps,
+			  int start_theta0, int start_theta1)
 {
-	return graph_path(path_cspace, start_theta0, start_theta1, END_POINT, plan, num_steps);
+	return graph_path(path_cspace, start_theta0, start_theta1, plan, num_steps);
 }
 
 /**
@@ -68,7 +69,7 @@ static int mark_solution_region(int x, int y, int tolerance)
 			if (((int)x_end >= x - tolerance && (int)x_end <= x + tolerance) &&
 			    ((int)y_end >= y - tolerance && (int)y_end <= y + tolerance)) {
 				if (path_cspace[theta1][theta0] != OCCUPIED) {
-					path_cspace[theta1][theta0] = PATH;
+					path_cspace[theta1][theta0] = END_POINT;
 					solution = true;
 				}
 			}
@@ -84,17 +85,20 @@ static int mark_solution_region(int x, int y, int tolerance)
 }
 
 int pathfinding_calculate_path(int start_theta0, int start_theta1, int end_x, int end_y,
-			       struct pathfinding_steps (*plan)[MAX_NUM_STEPS], int *num_steps)
+			       struct pathfinding_steps plan[MAX_NUM_STEPS], int *num_steps)
 {
 	int ret;
 
-	LOG_INF("Pathfinding is calculating path to: X: %dmm, Y: %dmm from angles theta0: %d\u00B0, theta1: %d\u00B0", end_x, end_y, start_theta0, start_theta1);
+	LOG_INF("Pathfinding is calculating path to: X: %dmm, Y: %dmm from angles theta0: "
+		"%d\u00B0, theta1: %d\u00B0",
+		end_x, end_y, start_theta0, start_theta1);
 
 	/*
 	 * Check for proper inputs
 	 */
-	if (start_theta0 > ARM_RANGE || start_theta0 < 0 || start_theta1 > ARM_RANGE || start_theta1 < 0
-	|| end_x < 0 || end_x > WORKSPACE_DIMENSION || end_y < 0 || end_y > WORKSPACE_DIMENSION) {
+	if (start_theta0 > ARM_RANGE || start_theta0 < 0 || start_theta1 > ARM_RANGE ||
+	    start_theta1 < 0 || end_x < 0 || end_x > WORKSPACE_DIMENSION || end_y < 0 ||
+	    end_y > WORKSPACE_DIMENSION) {
 		LOG_ERR("ERROR: Parameters supplied invalid!");
 		return -EINVAL;
 	}
@@ -123,12 +127,12 @@ int pathfinding_calculate_path(int start_theta0, int start_theta1, int end_x, in
 	/*
 	 * 2. Mark start/endpoint in spaces, if not occupied
 	 */
-	if (path_cspace[start_theta0][start_theta1] != FREE) {
+	if (path_cspace[start_theta1][start_theta0] != FREE) {
 		LOG_ERR("ERROR Provided starting angles are in invalid configuration!");
 		return -EINVAL;
 	}
 
-	path_cspace[start_theta0][start_theta1] = START_POINT;
+	path_cspace[start_theta1][start_theta0] = START_POINT;
 
 	if (path_wspace[end_y][end_x] != FREE) {
 		LOG_ERR("ERROR: End coordinates supplied are in occupied space!");
@@ -140,7 +144,7 @@ int pathfinding_calculate_path(int start_theta0, int start_theta1, int end_x, in
 	double temp_x;
 	double temp_y;
 	ret = get_arm_endpoint(start_theta0, start_theta1, ARM_LEN_MM, ARM_RANGE, ARM_ORIGIN_X_MM,
-		ARM_ORIGIN_Y_MM, &temp_x, &temp_y);
+			       ARM_ORIGIN_Y_MM, &temp_x, &temp_y);
 	if (ret) {
 		LOG_ERR("ERROR calculating arm endpoint (err: %d)", ret);
 		return ret;
@@ -152,13 +156,17 @@ int pathfinding_calculate_path(int start_theta0, int start_theta1, int end_x, in
 	/*
 	 * Check the starting X,Y coordinates are legal
 	 */
-	if ((int)temp_x < 0 || (int)temp_x > WORKSPACE_DIMENSION || (int)temp_y < 0 || (int)temp_x > WORKSPACE_DIMENSION) {
-		LOG_ERR("ERROR: Starting points, given angles, out of wspace range! (x: %d, y: %d)", (int)temp_x, (int)temp_y);
+	if ((int)temp_x < 0 || (int)temp_x > WORKSPACE_DIMENSION || (int)temp_y < 0 ||
+	    (int)temp_x > WORKSPACE_DIMENSION) {
+		LOG_ERR("ERROR: Starting points, given angles, out of wspace range! (x: %d, y: %d)",
+			(int)temp_x, (int)temp_y);
 		return -1;
 	}
 
 	if (path_wspace[(int)temp_y][(int)temp_x] != FREE) {
-		LOG_ERR("ERROR: Starting coordinates, given angles, are in occupied space! (x: %d, y: %d)", (int)temp_y, (int)temp_x);
+		LOG_ERR("ERROR: Starting coordinates, given angles, are in occupied space! (x: %d, "
+			"y: %d)",
+			(int)temp_y, (int)temp_x);
 		return -1;
 	}
 
@@ -181,6 +189,26 @@ int pathfinding_calculate_path(int start_theta0, int start_theta1, int end_x, in
 	if (ret) {
 		LOG_ERR("ERROR calculating solution path! (err: %d)");
 		return ret;
+	}
+
+	/*
+	 * 4. Draw solution on cspace
+	 *
+	 * Don't draw last point to keep end-point marker
+	 */
+	for (int i = 0; i < *num_steps - 1; i++) {
+		path_cspace[plan[i].theta1][plan[i].theta0] = PATH;
+
+		double x;
+		double y;
+		ret = get_arm_endpoint(plan[i].theta0, plan[i].theta1, ARM_LEN_MM, ARM_RANGE,
+				       ARM_ORIGIN_X_MM, ARM_ORIGIN_Y_MM, &x, &y);
+		if (ret) {
+			LOG_ERR("Error calculating arm endpoint! (err: %d)", ret);
+			return ret;
+		}
+
+		path_wspace[(int)ceil(y)][(int)ceil(x)] = PATH;
 	}
 
 	LOG_INF("Pathfinding completed successfully, solution staged!");

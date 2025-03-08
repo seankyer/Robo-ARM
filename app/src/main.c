@@ -85,16 +85,16 @@ int main(void)
 
 	/*
 	 * Given two points in space, calculate the path.
-	 *
-	 * TODO: Eventually, the state of the robot and its current X,Y coordinates
-	 *       will be stored and processed in a thread
 	 */
-	ret = pathfinding_calculate_path(30, 160, 170, 200, &plan, &num_steps);
+	ret = pathfinding_calculate_path(100, 100, 170, 200, plan, &num_steps);
 	if (ret) {
 		LOG_ERR("Error during pathfinding (err: %d)", ret);
 		return ret;
 	}
 
+	/* TODO: Submit plan to motor control thread */
+
+	/* Print spaces for Python modelling */
 	print_work();
 
 	return 0;

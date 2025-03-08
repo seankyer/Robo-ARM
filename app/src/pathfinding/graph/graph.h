@@ -19,6 +19,7 @@
  *
  * @retval 0 on success, non-zero otherwise
  */
-int graph_path(uint8_t(*graph)[CSPACE_DIMENSION], int start_x, int start_y, int sol_mark, struct pathfinding_steps (*path)[MAX_NUM_STEPS], int *num_steps);
+int graph_path(uint8_t (*graph)[CSPACE_DIMENSION], int start_x, int start_y,
+	       struct pathfinding_steps path[MAX_NUM_STEPS], int *num_steps);
 
 #endif /* APP_GRAPH_H_ */

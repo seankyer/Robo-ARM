@@ -19,7 +19,7 @@ LOG_MODULE_REGISTER(spaces, LOG_LEVEL_INF);
 /**
  * @brief Workspace array
  */
-static uint8_t wspace[WORKSPACE_DIMENSION][WORKSPACE_DIMENSION] = {{0}};
+static uint8_t wspace[WORKSPACE_DIMENSION][WORKSPACE_DIMENSION] = {{FREE}};
 
 /**
  * @brief Number of known obstacles
@@ -36,7 +36,7 @@ static struct rectangle obstacles[MAX_NUM_OBJ];
  *
  * ARM_RANGE x ARM_RANGE grid of possible configurations for arms
  */
-static uint8_t cspace[CSPACE_DIMENSION][CSPACE_DIMENSION] = {{0}};
+static uint8_t cspace[CSPACE_DIMENSION][CSPACE_DIMENSION] = {{FREE}};
 
 /**
  * @brief Checks if arm position collides with environment
@@ -107,7 +107,7 @@ static void mark_obstacle_in_workspace(struct rectangle *obstacle)
 	for (int y = min_y; y <= max_y; y++) {
 		for (int x = min_x; x <= max_x; x++) {
 			if (x >= 0 && x < WORKSPACE_SQMM && y >= 0 && y < WORKSPACE_SQMM) {
-				wspace[y][x] = 1;
+				wspace[y][x] = OCCUPIED;
 			}
 		}
 	}
@@ -163,7 +163,7 @@ int generate_configuration_space()
 			for (int j = 0; j < ARM_RANGE; j += ARM_DEGREE_INC) {
 				LOG_DBG("Recording collision at angles: (theta0: %d, theta1: %d)",
 					theta0, j);
-				cspace[j][theta0] = 1;
+				cspace[j][theta0] = OCCUPIED;
 			}
 			continue;
 		}
@@ -195,7 +195,7 @@ int generate_configuration_space()
 			if (check_collisions(x0_endpoint, y0_endpoint, x1_endpoint, y1_endpoint)) {
 				LOG_DBG("Recording collision at angles: (theta0: %d, theta1: %d)",
 					theta0, theta1);
-				cspace[theta1][theta0] = 1;
+				cspace[theta1][theta0] = OCCUPIED;
 				continue;
 			}
 		}
