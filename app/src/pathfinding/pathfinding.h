@@ -14,6 +14,11 @@
 #define MAX_NUM_STEPS 300
 
 /**
+ * @brief Arbitrarily pick solution nodes for heuristic
+ */
+#define SOLUTION_NODES 5
+
+/**
  * @brief Struct holding a single step of path
  */
 struct pathfinding_steps {
@@ -42,23 +47,5 @@ struct pathfinding_steps {
  */
 int pathfinding_calculate_path(int start_theta0, int start_theta1, int end_x, int end_y,
 			       struct pathfinding_steps plan[MAX_NUM_STEPS], int *num_steps);
-
-/**
- * @brief Get a pointer to the pathfinding wspace
- *
- * @param[out] wspace Pointer to 2D workspace array
- *
- * @retval 0 on success, non-zero otherwise
- */
-int get_path_wspace(uint8_t (**path_wspace_out)[WORKSPACE_DIMENSION]);
-
-/**
- * @brief Get a pointer to the pathfinding configuration space
- *
- * @param[out] cspace Pointer to 2D cspace array
- *
- * @retval 0 on success, non-zero otherwise
- */
-int get_path_cspace(uint8_t (**path_cspace_out)[CSPACE_DIMENSION]);
 
 #endif /* APP_PATHFINDING_H_ */

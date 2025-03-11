@@ -14,7 +14,7 @@ LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 /**
  * @brief Array of known workspace obstacles
  */
-struct rectangle obstacles[] = {
+static const struct rectangle obstacles[] = {
 
 	/* Rectangle off to the left of arm */
 	{.bottom = {.x1 = 60, .y1 = 90, .x2 = 74, .y2 = 90},
@@ -37,22 +37,8 @@ struct rectangle obstacles[] = {
 
 static void print_work(void)
 {
-	/*
-	 * Pointers to generated spaces
-	 */
-	uint8_t(*cspace)[CSPACE_DIMENSION];
-	uint8_t(*wspace)[WORKSPACE_DIMENSION];
-
-	/*
-	 * Get and print spaces for python script
-	 */
-	if (get_path_cspace(&cspace)) {
-		LOG_ERR("Couldn't get cspace!");
-	}
-
-	if (get_path_wspace(&wspace)) {
-		LOG_ERR("Couldn't get wspace!");
-	}
+	uint8_t(*cspace)[CSPACE_DIMENSION] = get_cspace();
+	uint8_t(*wspace)[WORKSPACE_DIMENSION] = get_wspace();
 
 	print_spaces(cspace, wspace);
 }
@@ -86,10 +72,15 @@ int main(void)
 	/*
 	 * Given two points in space, calculate the path.
 	 */
-	ret = pathfinding_calculate_path(100, 100, 170, 200, plan, &num_steps);
+	// ret = pathfinding_calculate_path(37, 1, 170, 200, plan, &num_steps);
+	ret = pathfinding_calculate_path(4, 69, 170, 200, plan, &num_steps);
+	// ret = pathfinding_calculate_path(53, 95, 170, 200, plan, &num_steps);
+	// ret = pathfinding_calculate_path(75, 75, 170, 200, plan, &num_steps);
+	// ret = pathfinding_calculate_path(40, 170, 170, 200, plan, &num_steps);
+	// ret = pathfinding_calculate_path(162, 118, 170, 200, plan, &num_steps); /** Should fail
+	// */
 	if (ret) {
 		LOG_ERR("Error during pathfinding (err: %d)", ret);
-		return ret;
 	}
 
 	/* TODO: Submit plan to motor control thread */

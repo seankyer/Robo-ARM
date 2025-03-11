@@ -13,7 +13,7 @@
 /**
  * @brief Add a known obstacle to the environment
  */
-int add_obstacle(struct rectangle *obstacle);
+int add_obstacle(const struct rectangle *obstacle);
 
 /**
  * @brief Generates the configuration space given a workspace map
@@ -23,21 +23,21 @@ int add_obstacle(struct rectangle *obstacle);
 int generate_configuration_space(void);
 
 /**
- * @brief Get a pointer to the workspace
+ * @brief Copy wspace to pointer
  *
  * @param[out] wspace Pointer to 2D workspace array
  *
  * @retval 0 on success, non-zero otherwise
  */
-int get_wspace(uint8_t (**wspace_out)[WORKSPACE_DIMENSION]);
+uint8_t (*get_wspace(void))[WORKSPACE_DIMENSION];
 
 /**
- * @brief Get a pointer to the configuration space
+ * @brief Copy cspace to pointer
  *
  * @param[out] cspace Pointer to 2D cspace array
  *
  * @retval 0 on success, non-zero otherwise
  */
-int get_cspace(uint8_t (**cspace_out)[CSPACE_DIMENSION]);
+uint8_t (*get_cspace(void))[CSPACE_DIMENSION];
 
 #endif /* APP_SPACES_H_ */

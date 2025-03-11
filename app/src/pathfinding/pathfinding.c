@@ -16,12 +16,12 @@ LOG_MODULE_REGISTER(pathfinding, LOG_LEVEL_INF);
 /**
  * @brief Pathfinding workspace
  */
-static uint8_t path_wspace[WORKSPACE_DIMENSION][WORKSPACE_DIMENSION];
+static uint8_t (*path_wspace)[WORKSPACE_DIMENSION];
 
 /**
  * @brief Pathfinding configuration space
  */
-static uint8_t path_cspace[CSPACE_DIMENSION][CSPACE_DIMENSION];
+static uint8_t (*path_cspace)[CSPACE_DIMENSION];
 
 /**
  * @brief Using routing algorithm, calculate efficient solution to cspace solution space
@@ -29,9 +29,10 @@ static uint8_t path_cspace[CSPACE_DIMENSION][CSPACE_DIMENSION];
  * Assumes that path_cspace and path_wspace contain valid data
  */
 static int calculate_path(struct pathfinding_steps plan[MAX_NUM_STEPS], int *num_steps,
-			  int start_theta0, int start_theta1)
+			  int start_theta0, int start_theta1,
+			  struct point solutions[SOLUTION_NODES])
 {
-	return graph_path(path_cspace, start_theta0, start_theta1, plan, num_steps);
+	return graph_path(path_cspace, start_theta0, start_theta1, plan, num_steps, solutions);
 }
 
 /**
@@ -39,7 +40,7 @@ static int calculate_path(struct pathfinding_steps plan[MAX_NUM_STEPS], int *num
  *
  * Will scan through cspace, calculating the endpoint
  */
-static int mark_solution_region(int x, int y, int tolerance)
+static int mark_solution_region(int x, int y, int tolerance, struct point solutions[SOLUTION_NODES])
 {
 	int ret;
 
@@ -47,6 +48,7 @@ static int mark_solution_region(int x, int y, int tolerance)
 	 * If solution not found, report error
 	 */
 	bool solution = false;
+	int idx = 0;
 
 	double x_end;
 	double y_end;
@@ -71,6 +73,15 @@ static int mark_solution_region(int x, int y, int tolerance)
 				if (path_cspace[theta1][theta0] != OCCUPIED) {
 					path_cspace[theta1][theta0] = END_POINT;
 					solution = true;
+
+					/* TODO: Replace this with a distributed approach */
+					if (idx < SOLUTION_NODES) {
+						solutions[idx].x = theta0;
+						solutions[idx].y = theta1;
+						idx++;
+					} else {
+						LOG_INF("Max solution nodes hit");
+					}
 				}
 			}
 		}
@@ -96,33 +107,18 @@ int pathfinding_calculate_path(int start_theta0, int start_theta1, int end_x, in
 	/*
 	 * Check for proper inputs
 	 */
-	if (start_theta0 > ARM_RANGE || start_theta0 < 0 || start_theta1 > ARM_RANGE ||
-	    start_theta1 < 0 || end_x < 0 || end_x > WORKSPACE_DIMENSION || end_y < 0 ||
-	    end_y > WORKSPACE_DIMENSION) {
+	if (start_theta0 >= ARM_RANGE || start_theta0 < 0 || start_theta1 >= ARM_RANGE ||
+	    start_theta1 < 0 || end_x < 0 || end_x >= WORKSPACE_DIMENSION || end_y < 0 ||
+	    end_y >= WORKSPACE_DIMENSION) {
 		LOG_ERR("ERROR: Parameters supplied invalid!");
 		return -EINVAL;
 	}
 
 	/*
-	 * 1. Reset path_wspace and path_cspace
+	 * 1. Copy over pointers to spaces
 	 */
-	uint8_t(*temp_cspace)[CSPACE_DIMENSION];
-	uint8_t(*temp_wspace)[WORKSPACE_DIMENSION];
-
-	ret = get_cspace(&temp_cspace);
-	if (ret) {
-		LOG_ERR("ERROR: Couldn't get cspace!");
-		return ret;
-	}
-
-	ret = get_wspace(&temp_wspace);
-	if (ret) {
-		LOG_ERR("ERROR: Couldn't get wspace!");
-		return ret;
-	}
-
-	memcpy(path_cspace, temp_cspace, CSPACE_DIMENSION * sizeof(temp_cspace[0]));
-	memcpy(path_wspace, temp_wspace, WORKSPACE_DIMENSION * sizeof(temp_wspace[0]));
+	path_cspace = get_cspace();
+	path_wspace = get_wspace();
 
 	/*
 	 * 2. Mark start/endpoint in spaces, if not occupied
@@ -156,8 +152,8 @@ int pathfinding_calculate_path(int start_theta0, int start_theta1, int end_x, in
 	/*
 	 * Check the starting X,Y coordinates are legal
 	 */
-	if ((int)temp_x < 0 || (int)temp_x > WORKSPACE_DIMENSION || (int)temp_y < 0 ||
-	    (int)temp_x > WORKSPACE_DIMENSION) {
+	if ((int)temp_x < 0 || (int)temp_x >= WORKSPACE_DIMENSION || (int)temp_y < 0 ||
+	    (int)temp_x >= WORKSPACE_DIMENSION) {
 		LOG_ERR("ERROR: Starting points, given angles, out of wspace range! (x: %d, y: %d)",
 			(int)temp_x, (int)temp_y);
 		return -1;
@@ -172,12 +168,14 @@ int pathfinding_calculate_path(int start_theta0, int start_theta1, int end_x, in
 
 	path_wspace[(int)temp_y][(int)temp_x] = START_POINT;
 
+	struct point solutions[SOLUTION_NODES];
+
 	/*
 	 * 3. Mark solution territory on cspace
 	 */
-	ret = mark_solution_region(end_x, end_y, ALLOWABLE_TOLERANCE_MM);
+	ret = mark_solution_region(end_x, end_y, ALLOWABLE_TOLERANCE_MM, solutions);
 	if (ret) {
-		LOG_ERR("ERROR marking solution region! (err: %d)");
+		LOG_ERR("ERROR marking solution region! (err: %d)", ret);
 		return ret;
 	}
 
@@ -185,9 +183,9 @@ int pathfinding_calculate_path(int start_theta0, int start_theta1, int end_x, in
 
 	LOG_INF("Calculating path to solution");
 
-	ret = calculate_path(plan, num_steps, start_theta0, start_theta1);
+	ret = calculate_path(plan, num_steps, start_theta0, start_theta1, solutions);
 	if (ret) {
-		LOG_ERR("ERROR calculating solution path! (err: %d)");
+		LOG_ERR("ERROR calculating solution path! (err: %d)", ret);
 		return ret;
 	}
 
@@ -196,7 +194,7 @@ int pathfinding_calculate_path(int start_theta0, int start_theta1, int end_x, in
 	 *
 	 * Don't draw last point to keep end-point marker
 	 */
-	for (int i = 0; i < *num_steps - 1; i++) {
+	for (int i = 1; i < *num_steps - 1; i++) {
 		path_cspace[plan[i].theta1][plan[i].theta0] = PATH;
 
 		double x;
@@ -213,25 +211,5 @@ int pathfinding_calculate_path(int start_theta0, int start_theta1, int end_x, in
 
 	LOG_INF("Pathfinding completed successfully, solution staged!");
 
-	return 0;
-}
-
-int get_path_wspace(uint8_t (**path_wspace_out)[WORKSPACE_DIMENSION])
-{
-	if (path_wspace_out == NULL) {
-		return -1;
-	}
-
-	*path_wspace_out = path_wspace;
-	return 0;
-}
-
-int get_path_cspace(uint8_t (**path_cspace_out)[CSPACE_DIMENSION])
-{
-	if (path_cspace_out == NULL) {
-		return -1;
-	}
-
-	*path_cspace_out = path_cspace;
 	return 0;
 }

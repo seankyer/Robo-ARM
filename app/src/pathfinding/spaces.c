@@ -17,11 +17,6 @@ LOG_MODULE_REGISTER(spaces, LOG_LEVEL_INF);
 #define MAX_NUM_OBJ 10
 
 /**
- * @brief Workspace array
- */
-static uint8_t wspace[WORKSPACE_DIMENSION][WORKSPACE_DIMENSION] = {{FREE}};
-
-/**
  * @brief Number of known obstacles
  */
 static int num_obstacles;
@@ -30,6 +25,11 @@ static int num_obstacles;
  * @brief List of obstacles in workspace
  */
 static struct rectangle obstacles[MAX_NUM_OBJ];
+
+/**
+ * @brief Workspace array
+ */
+static uint8_t wspace[WORKSPACE_DIMENSION][WORKSPACE_DIMENSION] = {{FREE}};
 
 /**
  * @brief Configuration space array
@@ -84,7 +84,7 @@ static bool check_collisions(double orig_x, double orig_y, double end_x, double 
  *
  * @param[in] obstacle The obstacle to be marked
  */
-static void mark_obstacle_in_workspace(struct rectangle *obstacle)
+static void mark_obstacle_in_workspace(const struct rectangle *obstacle)
 {
 	int min_x = (int)fmin(fmin(fmin(obstacle->bottom.x1, obstacle->bottom.x2),
 				   fmin(obstacle->top.x1, obstacle->top.x2)),
@@ -113,7 +113,7 @@ static void mark_obstacle_in_workspace(struct rectangle *obstacle)
 	}
 }
 
-int add_obstacle(struct rectangle *obstacle)
+int add_obstacle(const struct rectangle *obstacle)
 {
 	if (num_obstacles >= MAX_NUM_OBJ) {
 		return -1;
@@ -198,6 +198,23 @@ int generate_configuration_space()
 				cspace[theta1][theta0] = OCCUPIED;
 				continue;
 			}
+
+			/* Calculate if arm is in-bounds. Mark as occupied if not. */
+			double temp_x;
+			double temp_y;
+			ret = get_arm_endpoint(theta0, theta1, ARM_LEN_MM, ARM_RANGE,
+					       ARM_ORIGIN_X_MM, ARM_ORIGIN_Y_MM, &temp_x, &temp_y);
+			if (ret) {
+				LOG_ERR("ERROR calculating arm endpoint (err: %d)", ret);
+				return ret;
+			}
+
+			int int_x = (int)ceil(temp_x);
+			int int_y = (int)ceil(temp_y);
+			if (int_x < 0 || int_x >= WORKSPACE_DIMENSION || int_y < 0 ||
+			    int_y >= WORKSPACE_DIMENSION) {
+				cspace[theta1][theta0] = OCCUPIED;
+			}
 		}
 	}
 
@@ -206,22 +223,12 @@ int generate_configuration_space()
 	return 0;
 }
 
-int get_wspace(uint8_t (**wspace_out)[WORKSPACE_DIMENSION])
+uint8_t (*get_wspace(void))[WORKSPACE_DIMENSION]
 {
-	if (wspace_out == NULL) {
-		return -1;
-	}
-
-	*wspace_out = wspace;
-	return 0;
+	return wspace;
 }
 
-int get_cspace(uint8_t (**cspace_out)[CSPACE_DIMENSION])
+uint8_t (*get_cspace(void))[CSPACE_DIMENSION]
 {
-	if (cspace_out == NULL) {
-		return -1;
-	}
-
-	*cspace_out = cspace;
-	return 0;
+	return cspace;
 }

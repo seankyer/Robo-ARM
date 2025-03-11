@@ -8,6 +8,14 @@
 #include <pathfinding.h>
 
 /**
+ * @brief struct to represent a point on graph
+ */
+struct point {
+	uint16_t x; /**< X coordinate */
+	uint16_t y; /**< Y coordinate */
+};
+
+/**
  * @brief Run the pathfinding algorithm on the supplied graph
  *
  * @param[in] graph Pointer to graph
@@ -19,7 +27,8 @@
  *
  * @retval 0 on success, non-zero otherwise
  */
-int graph_path(uint8_t (*graph)[CSPACE_DIMENSION], int start_x, int start_y,
-	       struct pathfinding_steps path[MAX_NUM_STEPS], int *num_steps);
+int graph_path(const uint8_t (*graph)[CSPACE_DIMENSION], const int start_x, const int start_y,
+	       struct pathfinding_steps path[MAX_NUM_STEPS], int *num_steps,
+	       struct point end_points[SOLUTION_NODES]);
 
 #endif /* APP_GRAPH_H_ */
