@@ -1,0 +1,9 @@
+# Copyright (c) 2021 Nordic Semiconductor ASA
+# SPDX-License-Identifier: Apache-2.0
+
+config MG996R
+	bool "MG996R Servo Motor"
+	default y
+	depends on PWM
+	help
+	  Enable the MG996R servo motor driver

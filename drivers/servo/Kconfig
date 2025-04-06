@@ -1,0 +1,11 @@
+# SPDX-License-Identifier: Apache-2.0
+
+menuconfig SERVO
+    bool "Servo driver support"
+    default y
+    help
+      Enable support for servo motor drivers.
+
+if SERVO
+rsource "mg996r/Kconfig"
+endif # SERVO
