@@ -134,5 +134,5 @@ static int servo_set(const struct shell *shell, size_t argc, char **argv)
 }
 
 SHELL_CMD_REGISTER(rotate, NULL, "Starts servo rotation", start_rotate);
-SHELL_CMD_REGISTER(set, NULL, "Sets servo to a given degree", servo_set);
+SHELL_CMD_REGISTER(servo, NULL, "Sets servo to a given degree", servo_set);
 

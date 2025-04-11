@@ -18,7 +18,6 @@ struct mg996r_servo_config {
 	const struct pwm_dt_spec pwm;
 	uint32_t min_pulse_us;
 	uint32_t max_pulse_us;
-	bool inverted;
 };
 
 int mg996r_set_angle(const struct device *dev, uint8_t angle_deg)
@@ -35,11 +34,6 @@ int mg996r_set_angle(const struct device *dev, uint8_t angle_deg)
 		return -EINVAL;
 	}
 
-	/* If motor oriented in inverted, flip output */
-	if (cfg->inverted) {
-		angle_deg = MG996R_MAX_ANGLE - angle_deg;
-	}
-
 	uint32_t pulse_width =
 		cfg->min_pulse_us +
 		((cfg->max_pulse_us - cfg->min_pulse_us) * angle_deg) / MG996R_MAX_ANGLE;
@@ -54,7 +48,6 @@ int mg996r_set_angle(const struct device *dev, uint8_t angle_deg)
 		.pwm = PWM_DT_SPEC_INST_GET(inst),                                                 \
 		.min_pulse_us = DT_INST_PROP(inst, min_pulse),                                     \
 		.max_pulse_us = DT_INST_PROP(inst, max_pulse),                                     \
-		.inverted = DT_INST_PROP(inst, inverted),                                          \
 	};                                                                                         \
 	DEVICE_DT_INST_DEFINE(inst, NULL, NULL, NULL, &mg996r_servo_cfg_##inst, POST_KERNEL,       \
 			      CONFIG_KERNEL_INIT_PRIORITY_DEVICE, NULL);

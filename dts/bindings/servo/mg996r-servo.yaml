@@ -22,9 +22,3 @@ properties:
     required: true
     type: int
     description: Maximum pulse width (nanoseconds) for 180 degrees.
-
-  inverted:
-    type: boolean
-    description: |
-      Whether the servo motor is inverse or not. This option automatically inverses the output
-      PWM width.
