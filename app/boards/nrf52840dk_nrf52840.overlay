@@ -15,7 +15,6 @@
         pwms = <&pwm0 1 PWM_MSEC(20) PWM_POLARITY_NORMAL>;
         min-pulse = <500000>;
         max-pulse = <2500000>;
-        inverted;
     };
 };
 
