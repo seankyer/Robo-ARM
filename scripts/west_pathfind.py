@@ -12,7 +12,7 @@ import subprocess
 import time
 
 def run_and_execute_app():
-    result = subprocess.run(["west", "build", "-p", "-b", "native_sim", "app"], capture_output=True, text=True)
+    result = subprocess.run(["west", "build", "-p", "-b", "native_sim", "tests/pathfind"], capture_output=True, text=True)
     log.inf(result.stdout)
 
     log_file = "pathfind.txt"
