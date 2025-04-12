@@ -64,9 +64,13 @@ static bool check_collisions(double orig_x, double orig_y, double end_x, double 
 	for (int i = 0; i < num_obstacles; i++) {
 
 		/* Translate by the the thickness of our plus clearance arm */
-		for (int mag = -(ARM_WIDTH_MM / 2) - REQUIRED_CLEARANCE_MM;
-		     mag <= (ARM_WIDTH_MM / 2) + REQUIRED_CLEARANCE_MM;
-		     mag += (ARM_WIDTH_MM + (REQUIRED_CLEARANCE_MM * 2)) / 4) {
+		for (int mag = -(CONFIG_PATHFIND_ARM_WIDTH_MM / 2) -
+			       CONFIG_PATHFIND_REQUIRED_CLEARANCE_MM;
+		     mag <=
+		     (CONFIG_PATHFIND_ARM_WIDTH_MM / 2) + CONFIG_PATHFIND_REQUIRED_CLEARANCE_MM;
+		     mag +=
+		     (CONFIG_PATHFIND_ARM_WIDTH_MM + (CONFIG_PATHFIND_REQUIRED_CLEARANCE_MM * 2)) /
+		     4) {
 
 			/* Instantly return if a collision is found anywhere along arm width or
 			 * clearance */
@@ -107,7 +111,8 @@ static void mark_obstacle_in_workspace(const struct rectangle *obstacle)
 	/* Assumption: That rectangle is axis aligned allows us to do this */
 	for (int y = min_y; y <= max_y; y++) {
 		for (int x = min_x; x <= max_x; x++) {
-			if (x >= 0 && x < WORKSPACE_SQMM && y >= 0 && y < WORKSPACE_SQMM) {
+			if (x >= 0 && x < CONFIG_PATHFIND_WORKSPACE_SQMM && y >= 0 &&
+			    y < CONFIG_PATHFIND_WORKSPACE_SQMM) {
 				wspace[y][x] = OCCUPIED;
 			}
 		}
@@ -138,7 +143,8 @@ int generate_configuration_space()
 	 * Run through the entire range of motion for the 2-axis arm
 	 * and record if its a valid placement or not to the configuration space
 	 */
-	for (int theta0 = 0; theta0 < ARM_RANGE; theta0 += ARM_DEGREE_INC) {
+	for (int theta0 = 0; theta0 < CONFIG_PATHFIND_ARM_RANGE;
+	     theta0 += CONFIG_PATHFIND_ARM_DEGREE_INC) {
 
 		LOG_INF("Generating... %d%% complete", (theta0 * 100) / 180);
 
@@ -148,20 +154,23 @@ int generate_configuration_space()
 		/*
 		 * This gets the endpoint assuming origin of 0
 		 */
-		ret = get_segment_endpoint_trig(ARM_LEN_MM, (double)theta0, &x0_delta, &y0_delta);
+		ret = get_segment_endpoint_trig(CONFIG_PATHFIND_ARM_LEN_MM, (double)theta0,
+						&x0_delta, &y0_delta);
 		if (ret) {
 			LOG_ERR("Error during segment endpoint calculation (err: %d)\n", ret);
 			return ret;
 		}
 
-		double x0_endpoint = ARM_ORIGIN_X_MM + x0_delta;
-		double y0_endpoint = ARM_ORIGIN_Y_MM + y0_delta;
+		double x0_endpoint = CONFIG_PATHFIND_ARM_ORIGIN_X_MM + x0_delta;
+		double y0_endpoint = CONFIG_PATHFIND_ARM_ORIGIN_Y_MM + y0_delta;
 
 		/*
 		 * Calculate collisions in workspace
 		 */
-		if (check_collisions(ARM_ORIGIN_X_MM, ARM_ORIGIN_Y_MM, x0_endpoint, y0_endpoint)) {
-			for (int j = 0; j < ARM_RANGE; j += ARM_DEGREE_INC) {
+		if (check_collisions(CONFIG_PATHFIND_ARM_ORIGIN_X_MM,
+				     CONFIG_PATHFIND_ARM_ORIGIN_Y_MM, x0_endpoint, y0_endpoint)) {
+			for (int j = 0; j < CONFIG_PATHFIND_ARM_RANGE;
+			     j += CONFIG_PATHFIND_ARM_DEGREE_INC) {
 				LOG_DBG("Recording collision at angles: (theta0: %d, theta1: %d)",
 					theta0, j);
 				cspace[j][theta0] = OCCUPIED;
@@ -173,14 +182,16 @@ int generate_configuration_space()
 		 * Our model does not rotate the axis, instead assume theta1 = 0 is
 		 * perpendicular to theta0 since each arm is in series with each other.
 		 */
-		for (int theta1 = 0; theta1 < ARM_RANGE; theta1 += ARM_DEGREE_INC) {
+		for (int theta1 = 0; theta1 < CONFIG_PATHFIND_ARM_RANGE;
+		     theta1 += CONFIG_PATHFIND_ARM_DEGREE_INC) {
 
 			double x1_delta;
 			double y1_delta;
 
-			ret = get_segment_endpoint_trig(ARM_LEN_MM,
-							(double)theta1 + (theta0 - (ARM_RANGE / 2)),
-							&x1_delta, &y1_delta);
+			ret = get_segment_endpoint_trig(
+				CONFIG_PATHFIND_ARM_LEN_MM,
+				(double)theta1 + (theta0 - (CONFIG_PATHFIND_ARM_RANGE / 2)),
+				&x1_delta, &y1_delta);
 			if (ret) {
 				LOG_ERR("Error during segment endpoint calculation (err: %d)\n",
 					ret);
@@ -203,8 +214,10 @@ int generate_configuration_space()
 			/* Calculate if arm is in-bounds. Mark as occupied if not. */
 			double temp_x;
 			double temp_y;
-			ret = get_arm_endpoint(theta0, theta1, ARM_LEN_MM, ARM_RANGE,
-					       ARM_ORIGIN_X_MM, ARM_ORIGIN_Y_MM, &temp_x, &temp_y);
+			ret = get_arm_endpoint(theta0, theta1, CONFIG_PATHFIND_ARM_LEN_MM,
+					       CONFIG_PATHFIND_ARM_RANGE,
+					       CONFIG_PATHFIND_ARM_ORIGIN_X_MM,
+					       CONFIG_PATHFIND_ARM_ORIGIN_Y_MM, &temp_x, &temp_y);
 			if (ret) {
 				LOG_ERR("ERROR calculating arm endpoint (err: %d)", ret);
 				return ret;

@@ -54,10 +54,14 @@ static int mark_solution_region(int x, int y, int tolerance, struct point soluti
 	double x_end;
 	double y_end;
 
-	for (int theta0 = 0; theta0 < ARM_RANGE; theta0 += ARM_DEGREE_INC) {
-		for (int theta1 = 0; theta1 < ARM_RANGE; theta1 += ARM_DEGREE_INC) {
-			ret = get_arm_endpoint(theta0, theta1, ARM_LEN_MM, ARM_RANGE,
-					       ARM_ORIGIN_X_MM, ARM_ORIGIN_Y_MM, &x_end, &y_end);
+	for (int theta0 = 0; theta0 < CONFIG_PATHFIND_ARM_RANGE;
+	     theta0 += CONFIG_PATHFIND_ARM_DEGREE_INC) {
+		for (int theta1 = 0; theta1 < CONFIG_PATHFIND_ARM_RANGE;
+		     theta1 += CONFIG_PATHFIND_ARM_DEGREE_INC) {
+			ret = get_arm_endpoint(theta0, theta1, CONFIG_PATHFIND_ARM_LEN_MM,
+					       CONFIG_PATHFIND_ARM_RANGE,
+					       CONFIG_PATHFIND_ARM_ORIGIN_X_MM,
+					       CONFIG_PATHFIND_ARM_ORIGIN_Y_MM, &x_end, &y_end);
 			if (ret) {
 				LOG_ERR("Error calculating arm endpoint! (err: %d)", ret);
 				return ret;
@@ -108,9 +112,9 @@ int pathfinding_calculate_path(int start_theta0, int start_theta1, int end_x, in
 	/*
 	 * Check for proper inputs
 	 */
-	if (start_theta0 >= ARM_RANGE || start_theta0 < 0 || start_theta1 >= ARM_RANGE ||
-	    start_theta1 < 0 || end_x < 0 || end_x >= WORKSPACE_DIMENSION || end_y < 0 ||
-	    end_y >= WORKSPACE_DIMENSION) {
+	if (start_theta0 >= CONFIG_PATHFIND_ARM_RANGE || start_theta0 < 0 ||
+	    start_theta1 >= CONFIG_PATHFIND_ARM_RANGE || start_theta1 < 0 || end_x < 0 ||
+	    end_x >= WORKSPACE_DIMENSION || end_y < 0 || end_y >= WORKSPACE_DIMENSION) {
 		LOG_ERR("ERROR: Parameters supplied invalid!");
 		return -EINVAL;
 	}
@@ -140,8 +144,9 @@ int pathfinding_calculate_path(int start_theta0, int start_theta1, int end_x, in
 
 	double temp_x;
 	double temp_y;
-	ret = get_arm_endpoint(start_theta0, start_theta1, ARM_LEN_MM, ARM_RANGE, ARM_ORIGIN_X_MM,
-			       ARM_ORIGIN_Y_MM, &temp_x, &temp_y);
+	ret = get_arm_endpoint(start_theta0, start_theta1, CONFIG_PATHFIND_ARM_LEN_MM,
+			       CONFIG_PATHFIND_ARM_RANGE, CONFIG_PATHFIND_ARM_ORIGIN_X_MM,
+			       CONFIG_PATHFIND_ARM_ORIGIN_Y_MM, &temp_x, &temp_y);
 	if (ret) {
 		LOG_ERR("ERROR calculating arm endpoint (err: %d)", ret);
 		return ret;
@@ -174,7 +179,7 @@ int pathfinding_calculate_path(int start_theta0, int start_theta1, int end_x, in
 	/*
 	 * 3. Mark solution territory on cspace
 	 */
-	ret = mark_solution_region(end_x, end_y, ALLOWABLE_TOLERANCE_MM, solutions);
+	ret = mark_solution_region(end_x, end_y, CONFIG_PATHFIND_ALLOWABLE_TOLERANCE_MM, solutions);
 	if (ret) {
 		LOG_ERR("ERROR marking solution region! (err: %d)", ret);
 		return ret;
@@ -200,8 +205,9 @@ int pathfinding_calculate_path(int start_theta0, int start_theta1, int end_x, in
 
 		double x;
 		double y;
-		ret = get_arm_endpoint(plan[i].theta0, plan[i].theta1, ARM_LEN_MM, ARM_RANGE,
-				       ARM_ORIGIN_X_MM, ARM_ORIGIN_Y_MM, &x, &y);
+		ret = get_arm_endpoint(plan[i].theta0, plan[i].theta1, CONFIG_PATHFIND_ARM_LEN_MM,
+				       CONFIG_PATHFIND_ARM_RANGE, CONFIG_PATHFIND_ARM_ORIGIN_X_MM,
+				       CONFIG_PATHFIND_ARM_ORIGIN_Y_MM, &x, &y);
 		if (ret) {
 			LOG_ERR("Error calculating arm endpoint! (err: %d)", ret);
 			return ret;

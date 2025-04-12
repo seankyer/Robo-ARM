@@ -4,3 +4,57 @@ config PATHFIND
 	bool "Map utilities"
 	help
 	  This option enables the map utils library
+
+config PATHFIND_ALLOWABLE_TOLERANCE_MM
+	int "Allowable tolerance mm"
+	default 1
+	help
+	  The allowable tolerance for error of the pathfinding algorithm
+
+config PATHFIND_REQUIRED_CLEARANCE_MM
+	int "Required clearance mm"
+	default 3
+	help
+	  The minimum required clearance between the arm and obstacles
+
+config PATHFIND_WORKSPACE_SQMM
+	int "Workspace square mm"
+	default 395
+	help
+	  The workspace dimension in square millimeters
+
+config PATHFIND_ARM_LEN_MM
+	int "Arm length mm"
+	default 100
+	help
+	  The length of the arm in mm
+
+config PATHFIND_ARM_WIDTH_MM
+	int "Arm width mm"
+	default 30
+	help
+	The width of the arm in mm
+
+config PATHFIND_ARM_RANGE
+	int "Arm range in degrees"
+	default 180
+	help
+	  The total degrees of range for the arm
+
+config PATHFIND_ARM_DEGREE_INC
+	int "Arm increment"
+	default 1
+	help
+	  The precision of the arm
+
+config PATHFIND_ARM_ORIGIN_X_MM
+	int "Arm origin X mm"
+	default 198
+	help
+	  The origin x-coordinate for the arm in workspace (measure to middle of arm width)
+
+config PATHFIND_ARM_ORIGIN_Y_MM
+	int "Arm origin Y mm"
+	default 30
+	help
+	  The origin y-coordinate for the arm in workspace (measure to center of motor)
