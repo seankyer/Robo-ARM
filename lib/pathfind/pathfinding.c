@@ -6,10 +6,11 @@
 #include <stdio.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
+
 #include <lib/map_utils.h>
-#include <pathfinding.h>
-#include <spaces.h>
-#include <graph.h>
+#include <lib/pathfind/pathfinding.h>
+#include <lib/pathfind/spaces.h>
+#include <lib/pathfind/graph/graph.h>
 
 LOG_MODULE_REGISTER(pathfinding, LOG_LEVEL_INF);
 

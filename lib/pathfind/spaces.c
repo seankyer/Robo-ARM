@@ -7,7 +7,8 @@
 #include <math.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
-#include <spaces.h>
+
+#include <lib/pathfind/spaces.h>
 
 LOG_MODULE_REGISTER(spaces, LOG_LEVEL_INF);
 

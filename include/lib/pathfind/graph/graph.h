@@ -5,7 +5,7 @@
 #ifndef APP_GRAPH_H_
 #define APP_GRAPH_H_
 
-#include <pathfinding.h>
+#include <lib/pathfind/pathfinding.h>
 
 /**
  * @brief struct to represent a point on graph

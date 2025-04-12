@@ -6,7 +6,8 @@
 #include <math.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
-#include <graph.h>
+
+#include <lib/pathfind/graph/graph.h>
 
 LOG_MODULE_REGISTER(graph, LOG_LEVEL_INF);
 

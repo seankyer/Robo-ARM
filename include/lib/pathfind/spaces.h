@@ -7,7 +7,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <common.h>
+#include <lib/common.h>
 #include <lib/map_utils.h>
 
 /**

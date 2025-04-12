@@ -5,8 +5,8 @@
 #ifndef APP_PATHFINDING_H_
 #define APP_PATHFINDING_H_
 
-#include <common.h>
-#include <spaces.h>
+#include <lib/common.h>
+#include <lib/pathfind/spaces.h>
 
 /**
  * @brief Max number of steps in the manipulation
