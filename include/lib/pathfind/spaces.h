@@ -40,4 +40,11 @@ uint8_t (*get_wspace(void))[WORKSPACE_DIMENSION];
  */
 uint8_t (*get_cspace(void))[CSPACE_DIMENSION];
 
+/**
+ * @brief Cleanup cspace and reset free markers once finished
+ *
+ * Iterates over cspace and sets any non-occupied grid square back to free
+ */
+void cleanup_cspace(void);
+
 #endif /* APP_SPACES_H_ */

@@ -14,7 +14,7 @@ static const struct device *servo0 = DEVICE_DT_GET(DT_NODELABEL(servo0));
 static const struct device *servo1 = DEVICE_DT_GET(DT_NODELABEL(servo1));
 
 #define ARM_STACK_SIZE 4096
-#define ARM_PRIORITY   5
+#define ARM_PRIORITY   3
 
 /**
  * @brief Message queue to hold one job at a time
@@ -22,12 +22,10 @@ static const struct device *servo1 = DEVICE_DT_GET(DT_NODELABEL(servo1));
 K_MSGQ_DEFINE(arm_job_queue, sizeof(arm_job_t), 1, 4);
 
 /**
- * @brief Initialize the ARM
+ * @brief Job thread
  */
-static void initialize_arm(void)
+static void arm_job_thread_fn(void *p1, void *p2, void *p3)
 {
-	LOG_INF("Initializing arm!");
-
 	if (!device_is_ready(servo0)) {
 		LOG_ERR("servo0 device is not ready");
 		return;
@@ -38,28 +36,6 @@ static void initialize_arm(void)
 		return;
 	}
 
-	if (mg996r_set_angle(servo0, 0)) {
-		LOG_ERR("Error resetting servo0 angle!");
-	}
-
-
-	if (mg996r_set_angle(servo1, 0)) {
-		LOG_ERR("Error resetting servo1 angle!");
-	}
-
-	/* Ensure movement completes - let's not get hasty */
-	k_sleep(K_SECONDS(1));
-
-	LOG_INF("Initialization complete!");
-}
-
-/**
- * @brief Job thread
- */
-static void arm_job_thread_fn(void *p1, void *p2, void *p3)
-{
-	initialize_arm();
-
 	int ret;
 	arm_job_t job;
 
@@ -69,7 +45,8 @@ static void arm_job_thread_fn(void *p1, void *p2, void *p3)
 
 			for (size_t i = 0; i < job.num_steps; ++i) {
 				struct pathfinding_steps step = job.steps[i];
-				LOG_INF("Step %d -> theta0: %d, theta1: %d", (int)i, step.theta0, step.theta1);
+				LOG_INF("Step %d -> theta0: %d, theta1: %d", (int)i, step.theta0,
+					step.theta1);
 
 				ret = mg996r_set_angle(servo0, step.theta0);
 				if (ret) {
@@ -82,11 +59,8 @@ static void arm_job_thread_fn(void *p1, void *p2, void *p3)
 				}
 
 				/* We have no feedback, so have to give time for servo to move */
-				k_msleep(25);
+				k_msleep(5);
 			}
-
-			// If steps were dynamically allocated, free here (optional)
-			// k_free(job.steps);
 		}
 	}
 }
@@ -115,4 +89,3 @@ int arm_ctrl_submit_job(arm_job_t job, int *last_coord_0, int *last_coord_1)
 
 	return 0;
 }
-

@@ -246,3 +246,14 @@ uint8_t (*get_cspace(void))[CSPACE_DIMENSION]
 {
 	return cspace;
 }
+
+void cleanup_cspace(void)
+{
+	for (int i = 0; i < CSPACE_DIMENSION; i++) {
+		for (int j = 0; j < CSPACE_DIMENSION; j++) {
+			if (cspace[j][i] == START_POINT || cspace[j][i] == END_POINT || cspace[j][i] == PATH) {
+				cspace[j][i] = FREE;
+			}
+		}
+	}
+}

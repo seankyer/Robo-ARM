@@ -13,7 +13,7 @@
  */
 typedef struct {
 	struct pathfinding_steps steps[MAX_NUM_STEPS]; /**< Pointer to array of steps to follow */
-	size_t num_steps;        /**< Number of steps in array */
+	size_t num_steps;                              /**< Number of steps in array */
 } arm_job_t;
 
 /**

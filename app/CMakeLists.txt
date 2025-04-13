@@ -10,6 +10,7 @@ project(app)
 target_sources(app PRIVATE
         src/main.c
         src/threads/arm_ctrl.c
+        src/threads/control.c
 )
 
 target_include_directories(app PRIVATE

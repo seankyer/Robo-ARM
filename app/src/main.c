@@ -2,75 +2,76 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+#include <stdlib.h>
 #include <zephyr/kernel.h>
 #include <zephyr/logging/log.h>
 #include <app_version.h>
+#include <zephyr/shell/shell.h>
 
-#include <lib/pathfind/pathfinding.h>
-#include <lib/pathfind/spaces.h>
-#include <threads/arm_ctrl.h>
-#include <examples.h>
+#include <threads/control.h>
 
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
-static int servo0_d;
-static int servo1_d;
+/**
+ * Current control job
+ */
+static control_job_t job;
 
-int main(void)
+static int arm_go(const struct shell *shell, size_t argc, char **argv)
 {
 	int ret;
+	char *end;
 
-	LOG_INF("Starting Robo-ARM!");
-
-	/* Initialize starting coordinates */
-	servo0_d = 0;
-	servo1_d = 0;
-
-	LOG_INF("Submitting example rotate job");
-
-	ret = arm_ctrl_submit_job(example_rotate_job, &servo0_d, &servo1_d);
-	if (ret) {
-		LOG_ERR("Error submitting arm task!");
+	if (argc != 3) {
+		shell_error(shell, "Usage: go <x> <y>");
+		return -EINVAL;
 	}
 
-	k_yield();
+	int x_coord = strtol(argv[1], &end, 10);
+	int y_coord = strtol(argv[2], &end, 10);
 
-	// /*
-	//  * Add known obstacles to workspace
-	//  */
-	// for (int i = 0; i < sizeof(obstacles) / sizeof(struct rectangle); i++) {
-	// 	ret = add_obstacle(&obstacles[i]);
-	// 	if (ret) {
-	// 		LOG_ERR("Error adding obstacle! (err: %d)", ret);
-	// 	}
-	// }
-
-	LOG_INF("Generating cspace!");
-
-	/*
-	 * Generate cspace
-	 */
-	ret = generate_configuration_space();
-	if (ret) {
-		LOG_ERR("Couldn't generate configuration space");
-		return ret;
+	if (x_coord < 0 || x_coord > CONFIG_PATHFIND_WORKSPACE_SQMM) {
+		shell_error(shell, "X-coordinate must be within bounds of workspace");
 	}
 
-	LOG_INF("Calculating path to 170, 200");
-
-	arm_job_t example_job;
-
-	ret = pathfinding_calculate_path(servo0_d, servo1_d, 170, 170, example_job.steps, &example_job.num_steps);
-	if (ret) {
-		LOG_ERR("Error during pathfinding (err: %d)", ret);
+	if (y_coord < 0 || y_coord > CONFIG_PATHFIND_WORKSPACE_SQMM) {
+		shell_error(shell, "Y-coordinate must be within bounds of workspace");
 	}
 
-	LOG_INF("Running example job!");
+	job.x_coord = x_coord;
+	job.y_coord = y_coord;
+	job.demo = false;
 
-	ret = arm_ctrl_submit_job(example_job, &servo0_d, &servo1_d);
+	ret = control_submit_job(job);
 	if (ret) {
-		LOG_ERR("Error submitting arm task!");
+		shell_error(shell, "Failed to submit job to control!");
 	}
 
 	return 0;
 }
+
+static int demo_movement(const struct shell *shell, size_t argc, char **argv)
+{
+	int ret;
+
+	shell_print(shell, "Submitting demo job to control");
+
+	job.demo = true;
+
+	ret = control_submit_job(job);
+	if (ret) {
+		shell_error(shell, "Error submitting demo task!");
+	}
+
+	return 0;
+}
+
+int main(void)
+{
+	LOG_INF("Starting Robo-ARM!");
+
+	return 0;
+}
+
+SHELL_CMD_REGISTER(demo, NULL, "Plays example movement", demo_movement);
+SHELL_CMD_REGISTER(go, NULL, "Sets arm to given coordinates", arm_go);

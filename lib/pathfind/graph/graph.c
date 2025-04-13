@@ -313,14 +313,14 @@ static int greedy_dijkstra(const uint8_t (*graph)[CSPACE_DIMENSION], const int s
 		path[i].theta1 = curr->pos.y;
 		temp = curr;
 		curr = curr->parent;
-		k_heap_free(&heap, temp);
+		// k_heap_free(&heap, temp);
 	}
 
 	/* Free all remaining memory stuck in linked list */
 	while (head) {
 		temp = head;
 		head = head->next;
-		k_heap_free(&heap, temp);
+		// k_heap_free(&heap, temp);
 	}
 
 	LOG_INF("Done calculating path to solution");

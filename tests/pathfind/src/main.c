@@ -22,23 +22,23 @@ struct k_work_q workq;
  */
 static const struct rectangle obstacles[] = {
 
-	/* Rectangle off to the left of arm */
-	{.bottom = {.x1 = 60, .y1 = 90, .x2 = 74, .y2 = 90},
-	 .top = {.x1 = 60, .y1 = 104, .x2 = 74, .y2 = 104},
-	 .left = {.x1 = 60, .y1 = 90, .x2 = 60, .y2 = 104},
-	 .right = {.x1 = 74, .y1 = 90, .x2 = 74, .y2 = 104}},
+	// /* Rectangle off to the left of arm */
+	// {.bottom = {.x1 = 60, .y1 = 90, .x2 = 74, .y2 = 90},
+	//  .top = {.x1 = 60, .y1 = 104, .x2 = 74, .y2 = 104},
+	//  .left = {.x1 = 60, .y1 = 90, .x2 = 60, .y2 = 104},
+	//  .right = {.x1 = 74, .y1 = 90, .x2 = 74, .y2 = 104}},
 
-	/* Rectangle directly above arm and middle */
-	{.bottom = {.x1 = 200, .y1 = 200, .x2 = 225, .y2 = 200},
-	 .top = {.x1 = 200, .y1 = 260, .x2 = 225, .y2 = 260},
-	 .left = {.x1 = 200, .y1 = 200, .x2 = 200, .y2 = 260},
-	 .right = {.x1 = 225, .y1 = 200, .x2 = 225, .y2 = 260}},
+	// /* Rectangle directly above arm and middle */
+	// {.bottom = {.x1 = 200, .y1 = 200, .x2 = 225, .y2 = 200},
+	//  .top = {.x1 = 200, .y1 = 260, .x2 = 225, .y2 = 260},
+	//  .left = {.x1 = 200, .y1 = 200, .x2 = 200, .y2 = 260},
+	//  .right = {.x1 = 225, .y1 = 200, .x2 = 225, .y2 = 260}},
 
-	/* Rectangle right very close to base */
-	// {.bottom = {.x1 = 200, .y1 = 50, .x2 = 225, .y2 = 50},
-	// .top = {.x1 = 200, .y1 = 70, .x2 = 225, .y2 = 70},
-	// .left = {.x1 = 200, .y1 = 50, .x2 = 200, .y2 = 70},
-	// .right = {.x1 = 225, .y1 = 50, .x2 = 225, .y2 = 70}},
+	/* Rectangle middle to the right */
+	{.bottom = {.x1 = 230, .y1 = 170, .x2 = 260, .y2 = 170},
+	.top = {.x1 = 230, .y1 = 195, .x2 = 260, .y2 = 195},
+	.left = {.x1 = 230, .y1 = 170, .x2 = 230, .y2 = 195},
+	.right = {.x1 = 260, .y1 = 170, .x2 = 260, .y2 = 195}},
 };
 
 static void print_work(void)
@@ -79,7 +79,7 @@ int main(void)
 	 * Given two points in space, calculate the path.
 	 */
 	// ret = pathfinding_calculate_path(37, 1, 170, 200, plan, &num_steps);
-	ret = pathfinding_calculate_path(4, 69, 170, 200, plan, &num_steps);
+	ret = pathfinding_calculate_path(1, 90, 215, 175, plan, &num_steps);
 	// ret = pathfinding_calculate_path(53, 95, 170, 200, plan, &num_steps);
 	// ret = pathfinding_calculate_path(75, 75, 170, 200, plan, &num_steps);
 	// ret = pathfinding_calculate_path(40, 170, 170, 200, plan, &num_steps);
