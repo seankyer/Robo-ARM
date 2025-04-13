@@ -8,41 +8,44 @@
 
 #include <lib/pathfind/pathfinding.h>
 #include <lib/pathfind/spaces.h>
+#include <threads/arm_ctrl.h>
+#include <examples.h>
 
 LOG_MODULE_REGISTER(main, LOG_LEVEL_INF);
 
-/**
- * @brief Array of known workspace obstacles
- */
-static const struct rectangle obstacles[] = {
-
-	/* Rectangle off to the left of arm */
-	{.bottom = {.x1 = 60, .y1 = 90, .x2 = 74, .y2 = 90},
-	 .top = {.x1 = 60, .y1 = 104, .x2 = 74, .y2 = 104},
-	 .left = {.x1 = 60, .y1 = 90, .x2 = 60, .y2 = 104},
-	 .right = {.x1 = 74, .y1 = 90, .x2 = 74, .y2 = 104}},
-
-	/* Rectangle directly above arm and middle */
-	{.bottom = {.x1 = 200, .y1 = 200, .x2 = 225, .y2 = 200},
-	 .top = {.x1 = 200, .y1 = 260, .x2 = 225, .y2 = 260},
-	 .left = {.x1 = 200, .y1 = 200, .x2 = 200, .y2 = 260},
-	 .right = {.x1 = 225, .y1 = 200, .x2 = 225, .y2 = 260}},
-
-};
+static int servo0_d;
+static int servo1_d;
 
 int main(void)
 {
 	int ret;
 
-	/*
-	 * Add known obstacles to workspace
-	 */
-	for (int i = 0; i < sizeof(obstacles) / sizeof(struct rectangle); i++) {
-		ret = add_obstacle(&obstacles[i]);
-		if (ret) {
-			LOG_ERR("Error adding obstacle! (err: %d)", ret);
-		}
+	LOG_INF("Starting Robo-ARM!");
+
+	/* Initialize starting coordinates */
+	servo0_d = 0;
+	servo1_d = 0;
+
+	LOG_INF("Submitting example rotate job");
+
+	ret = arm_ctrl_submit_job(example_rotate_job, &servo0_d, &servo1_d);
+	if (ret) {
+		LOG_ERR("Error submitting arm task!");
 	}
+
+	k_yield();
+
+	// /*
+	//  * Add known obstacles to workspace
+	//  */
+	// for (int i = 0; i < sizeof(obstacles) / sizeof(struct rectangle); i++) {
+	// 	ret = add_obstacle(&obstacles[i]);
+	// 	if (ret) {
+	// 		LOG_ERR("Error adding obstacle! (err: %d)", ret);
+	// 	}
+	// }
+
+	LOG_INF("Generating cspace!");
 
 	/*
 	 * Generate cspace
@@ -53,18 +56,21 @@ int main(void)
 		return ret;
 	}
 
-	struct pathfinding_steps plan[MAX_NUM_STEPS];
-	int num_steps;
+	LOG_INF("Calculating path to 170, 200");
 
-	/*
-	 * Given two points in space, calculate the path.
-	 */
-	ret = pathfinding_calculate_path(4, 69, 170, 200, plan, &num_steps);
+	arm_job_t example_job;
+
+	ret = pathfinding_calculate_path(servo0_d, servo1_d, 170, 170, example_job.steps, &example_job.num_steps);
 	if (ret) {
 		LOG_ERR("Error during pathfinding (err: %d)", ret);
 	}
 
-	/* TODO: Submit plan to motor control thread */
+	LOG_INF("Running example job!");
+
+	ret = arm_ctrl_submit_job(example_job, &servo0_d, &servo1_d);
+	if (ret) {
+		LOG_ERR("Error submitting arm task!");
+	}
 
 	return 0;
 }

@@ -9,8 +9,10 @@ project(app)
 
 target_sources(app PRIVATE
         src/main.c
+        src/threads/arm_ctrl.c
 )
 
 target_include_directories(app PRIVATE
         ${CMAKE_SOURCE_DIR}/src
+        ${CMAKE_SOURCE_DIR}/src/threads
 )
