@@ -48,17 +48,14 @@ west flash
 
 ### Testing
 
-To execute Twister integration tests, run the following command:
+Debug workflow for pathfinding algorithm is to run on ``native_sim``.
 
-```shell
-west twister -T tests --integration
-```
-
-To execute pathfinding algorithm locally to graph and debug, run custom West command:
 ```shell
 west pathfind
 ```
 Which will build for ``native_sim`` and output a ``pathfind.txt`` which is then parsed by ``matplotlib`` in Python.
+
+Other tests exists for linear algebra library and servo driver under the ``/tests`` directory.
 
 #### Example output of ``west pathfind``
 ![BFS Robo-ARM](docs/images/Robo-ARM-BFS.png)
